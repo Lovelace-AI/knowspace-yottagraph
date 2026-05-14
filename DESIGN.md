@@ -33,22 +33,22 @@ The opportunity is to create a lightweight workspace that stores and organizes d
 
 Primary Goals
 
-* Import a full Notion workspace export into a usable internal workspace.
-* Preserve page hierarchy, titles, links, embedded file references, and database-like structures wherever possible.
-* Provide a simple document and page interface for browsing, editing, linking, and organizing knowledge.
-* Connect to Google Drive and Google Docs to index, reference, and optionally sync documents.
-* Use Postgres as the system of record for workspace objects, metadata, relationships, users, permissions, and import state.
-* Use a KV cache for fast document rendering, import status, sync state, search hints, and session-level computed views.
-* Use YottaGraph to enrich documents with entities, relationships, concepts, organizations, people, products, projects, and provenance trails.
-* Provide AI-assisted search and question-answering grounded in the imported workspace and connected documents.
+- Import a full Notion workspace export into a usable internal workspace.
+- Preserve page hierarchy, titles, links, embedded file references, and database-like structures wherever possible.
+- Provide a simple document and page interface for browsing, editing, linking, and organizing knowledge.
+- Connect to Google Drive and Google Docs to index, reference, and optionally sync documents.
+- Use Postgres as the system of record for workspace objects, metadata, relationships, users, permissions, and import state.
+- Use a KV cache for fast document rendering, import status, sync state, search hints, and session-level computed views.
+- Use YottaGraph to enrich documents with entities, relationships, concepts, organizations, people, products, projects, and provenance trails.
+- Provide AI-assisted search and question-answering grounded in the imported workspace and connected documents.
 
 Secondary Goals
 
-* Support simple collections/databases with fields, views, and linked records.
-* Provide a clean, Craft-inspired writing and organizing experience.
-* Support backlinks, mentions, tags, and entity pages.
-* Provide migration diagnostics so the team can see what imported cleanly and what needs review.
-* Create a foundation for future internal knowledge applications, including product strategy, proposals, customer notes, technical specs, hiring, and course materials.
+- Support simple collections/databases with fields, views, and linked records.
+- Provide a clean, Craft-inspired writing and organizing experience.
+- Support backlinks, mentions, tags, and entity pages.
+- Provide migration diagnostics so the team can see what imported cleanly and what needs review.
+- Create a foundation for future internal knowledge applications, including product strategy, proposals, customer notes, technical specs, hiring, and course materials.
 
 ⸻
 
@@ -56,14 +56,14 @@ Secondary Goals
 
 The MVP should not attempt to implement:
 
-* Full Notion feature parity.
-* Complex real-time multiplayer editing.
-* Full offline-first local document sync.
-* A perfect WYSIWYG editor with every block type.
-* Complex formulas, rollups, automations, or database relations equivalent to Notion.
-* Full Google Docs editing inside the app.
-* A separate document format that competes with Google Docs for external collaboration.
-* Enterprise-grade permissions beyond basic workspace, collection, page, and source-level access.
+- Full Notion feature parity.
+- Complex real-time multiplayer editing.
+- Full offline-first local document sync.
+- A perfect WYSIWYG editor with every block type.
+- Complex formulas, rollups, automations, or database relations equivalent to Notion.
+- Full Google Docs editing inside the app.
+- A separate document format that competes with Google Docs for external collaboration.
+- Enterprise-grade permissions beyond basic workspace, collection, page, and source-level access.
 
 The trap is trying to rebuild a mature workspace product. The right first version is a reliable imported knowledge repository with lightweight editing and strong retrieval.
 
@@ -77,11 +77,11 @@ Internal team member who needs to recover, search, update, and reuse knowledge f
 
 Needs:
 
-* Find old content quickly.
-* Understand where content came from.
-* Trust that migrated content was preserved.
-* Link old knowledge to current work.
-* Create new pages without needing a heavyweight system.
+- Find old content quickly.
+- Understand where content came from.
+- Trust that migrated content was preserved.
+- Link old knowledge to current work.
+- Create new pages without needing a heavyweight system.
 
 Secondary User
 
@@ -89,10 +89,10 @@ Founder, product lead, BD lead, professor, or operator using the workspace as a 
 
 Needs:
 
-* Search across old Notion exports and live Google Docs.
-* Generate summaries and briefs from trusted sources.
-* See entities, relationships, and provenance.
-* Reuse content in new documents, decks, proposals, and emails.
+- Search across old Notion exports and live Google Docs.
+- Generate summaries and briefs from trusted sources.
+- See entities, relationships, and provenance.
+- Reuse content in new documents, decks, proposals, and emails.
 
 Admin User
 
@@ -100,28 +100,28 @@ Workspace owner responsible for imports, integrations, permissions, and source m
 
 Needs:
 
-* Upload Notion export files.
-* Connect Google Drive.
-* Monitor sync status.
-* Resolve import errors.
-* Manage users and source access.
+- Upload Notion export files.
+- Connect Google Drive.
+- Monitor sync status.
+- Resolve import errors.
+- Manage users and source access.
 
 ⸻
 
 6. Product Principles
 
 1. Preserve first, enhance second.
-    The first job is to safely reconstruct the exported workspace. AI features are useless if users do not trust the migration.
-2. Source fidelity matters.
-    Every imported page, block, file, and Google Doc reference should retain source metadata, original path, import timestamp, and content hash.
-3. Google Docs remains Google Docs.
-    The app should index and organize Google Docs, not try to replace their collaborative editing model.
-4. Graph-backed retrieval is the differentiator.
-    Search should not only return documents. It should expose entities, relationships, topics, projects, customers, and repeated patterns across the workspace.
-5. The editor should be simple.
-    Use a clean block editor or Markdown editor. Avoid spending the first build on sophisticated formatting.
-6. Make migration visible.
-    Users should know what imported, what failed, what was transformed, and what requires manual review.
+   The first job is to safely reconstruct the exported workspace. AI features are useless if users do not trust the migration.
+1. Source fidelity matters.
+   Every imported page, block, file, and Google Doc reference should retain source metadata, original path, import timestamp, and content hash.
+1. Google Docs remains Google Docs.
+   The app should index and organize Google Docs, not try to replace their collaborative editing model.
+1. Graph-backed retrieval is the differentiator.
+   Search should not only return documents. It should expose entities, relationships, topics, projects, customers, and repeated patterns across the workspace.
+1. The editor should be simple.
+   Use a clean block editor or Markdown editor. Avoid spending the first build on sophisticated formatting.
+1. Make migration visible.
+   Users should know what imported, what failed, what was transformed, and what requires manual review.
 
 ⸻
 
@@ -131,16 +131,16 @@ Needs:
 
 The app should include:
 
-* Authenticated workspace.
-* Left sidebar with workspace navigation.
-* Page tree.
-* Collections section.
-* Sources section.
-* Search bar.
-* Recent pages.
-* Favorites.
-* Import status center.
-* Settings.
+- Authenticated workspace.
+- Left sidebar with workspace navigation.
+- Page tree.
+- Collections section.
+- Sources section.
+- Search bar.
+- Recent pages.
+- Favorites.
+- Import status center.
+- Settings.
 
 The UI should be simple and calm, closer to Craft than Notion. It should feel like a document workspace, not an admin panel.
 
@@ -150,59 +150,59 @@ A page is the core object.
 
 Each page should support:
 
-* Title.
-* Icon or emoji.
-* Parent page.
-* Child pages.
-* Body content.
-* Source metadata.
-* Tags.
-* Mentions.
-* Backlinks.
-* Attachments.
-* Linked entities.
-* Created and updated timestamps.
-* Import status.
-* Visibility or access level.
+- Title.
+- Icon or emoji.
+- Parent page.
+- Child pages.
+- Body content.
+- Source metadata.
+- Tags.
+- Mentions.
+- Backlinks.
+- Attachments.
+- Linked entities.
+- Created and updated timestamps.
+- Import status.
+- Visibility or access level.
 
 MVP page body can be stored as Markdown plus optional structured block JSON.
 
 Recommended approach:
 
-* Store canonical content as Markdown for portability.
-* Store block-level structure as JSONB when imported from Notion or edited through a block editor.
-* Render from cached compiled HTML for speed.
+- Store canonical content as Markdown for portability.
+- Store block-level structure as JSONB when imported from Notion or edited through a block editor.
+- Render from cached compiled HTML for speed.
 
-7.3 Collections
+    7.3 Collections
 
 Collections are lightweight databases.
 
 Each collection should support:
 
-* Name.
-* Description.
-* Fields.
-* Records.
-* Views.
-* Linked page per record.
+- Name.
+- Description.
+- Fields.
+- Records.
+- Views.
+- Linked page per record.
 
 MVP field types:
 
-* Text.
-* Select.
-* Multi-select.
-* Date.
-* Person.
-* URL.
-* Checkbox.
-* Number.
-* Relation to another page or collection record.
+- Text.
+- Select.
+- Multi-select.
+- Date.
+- Person.
+- URL.
+- Checkbox.
+- Number.
+- Relation to another page or collection record.
 
 MVP views:
 
-* Table.
-* List.
-* Card board grouped by select/status.
+- Table.
+- List.
+- Card board grouped by select/status.
 
 Do not implement formulas or rollups in MVP.
 
@@ -212,59 +212,59 @@ The system should accept a Notion export zip and convert it into internal worksp
 
 Supported input formats:
 
-* Markdown and CSV export.
-* HTML export if available.
-* Attachments and files bundled in export.
+- Markdown and CSV export.
+- HTML export if available.
+- Attachments and files bundled in export.
 
 Importer responsibilities:
 
-* Upload zip.
-* Extract file tree.
-* Detect export format.
-* Parse page hierarchy from directory structure and internal links.
-* Convert Markdown or HTML to internal page content.
-* Convert CSV databases into collections.
-* Preserve original file paths.
-* Preserve attachment references.
-* Rewrite internal links to point to imported pages.
-* Track unresolved links.
-* Generate import report.
-* Queue YottaGraph enrichment jobs.
+- Upload zip.
+- Extract file tree.
+- Detect export format.
+- Parse page hierarchy from directory structure and internal links.
+- Convert Markdown or HTML to internal page content.
+- Convert CSV databases into collections.
+- Preserve original file paths.
+- Preserve attachment references.
+- Rewrite internal links to point to imported pages.
+- Track unresolved links.
+- Generate import report.
+- Queue YottaGraph enrichment jobs.
 
 Import report should include:
 
-* Number of pages imported.
-* Number of collections imported.
-* Number of attachments imported.
-* Number of internal links resolved.
-* Number of unresolved links.
-* Number of unsupported block types.
-* Pages requiring review.
+- Number of pages imported.
+- Number of collections imported.
+- Number of attachments imported.
+- Number of internal links resolved.
+- Number of unresolved links.
+- Number of unsupported block types.
+- Pages requiring review.
 
-7.5 Google Docs / Drive Integration
+    7.5 Google Docs / Drive Integration
 
 The app should connect to Google Drive using OAuth.
 
 MVP capabilities:
 
-* Connect Google account.
-* Select folders or documents to index.
-* Import document metadata.
-* Index Google Doc text content.
-* Store Drive file ID, title, owner, URL, modified time, and permissions snapshot.
-* Show Google Docs as external source documents inside the workspace.
-* Link a Google Doc to a workspace page or collection record.
-* Refresh indexed content on demand.
-* Periodically check for modified documents.
+- Connect Google account.
+- Select folders or documents to index.
+- Import document metadata.
+- Index Google Doc text content.
+- Store Drive file ID, title, owner, URL, modified time, and permissions snapshot.
+- Show Google Docs as external source documents inside the workspace.
+- Link a Google Doc to a workspace page or collection record.
+- Refresh indexed content on demand.
+- Periodically check for modified documents.
 
 Google Docs should remain externally editable. The app should provide:
 
-* Preview summary.
-* Open in Google Docs button.
-* Indexed text for search.
-* Entity extraction.
-* Relationship extraction.
-* Comments and revision metadata where accessible and useful.
+- Preview summary.
+- Open in Google Docs button.
+- Indexed text for search.
+- Entity extraction.
+- Relationship extraction.
+- Comments and revision metadata where accessible and useful.
 
 MVP should not attempt native Google Docs editing.
 
@@ -278,68 +278,68 @@ Search should support three layers:
 
 Search result types:
 
-* Pages.
-* Collections.
-* Collection records.
-* Google Docs.
-* Attachments.
-* Entities.
-* Topics.
+- Pages.
+- Collections.
+- Collection records.
+- Google Docs.
+- Attachments.
+- Entities.
+- Topics.
 
 Each result should show:
 
-* Title.
-* Type.
-* Source.
-* Snippet.
-* Last updated.
-* Matched terms or entities.
-* Confidence or relevance score.
+- Title.
+- Type.
+- Source.
+- Snippet.
+- Last updated.
+- Matched terms or entities.
+- Confidence or relevance score.
 
 MVP search behavior:
 
-* User types natural language or keywords.
-* System returns ranked documents and entities.
-* User can filter by source, type, tag, date, and collection.
-* User can ask a grounded question and receive an answer with cited source links.
+- User types natural language or keywords.
+- System returns ranked documents and entities.
+- User can filter by source, type, tag, date, and collection.
+- User can ask a grounded question and receive an answer with cited source links.
 
-7.7 YottaGraph Enrichment
+    7.7 YottaGraph Enrichment
 
 YottaGraph should enrich workspace content by extracting and linking:
 
-* People.
-* Organizations.
-* Products.
-* Projects.
-* Customers.
-* Events.
-* Locations.
-* Documents.
-* Concepts.
-* Assets.
-* Dates and timelines.
-* Relationships among entities.
+- People.
+- Organizations.
+- Products.
+- Projects.
+- Customers.
+- Events.
+- Locations.
+- Documents.
+- Concepts.
+- Assets.
+- Dates and timelines.
+- Relationships among entities.
 
 For each enriched entity, store:
 
-* Entity name.
-* Entity type.
-* Canonical ID if known.
-* Aliases.
-* Source mentions.
-* Confidence.
-* Linked pages and docs.
-* Relationship edges.
-* Provenance.
+- Entity name.
+- Entity type.
+- Canonical ID if known.
+- Aliases.
+- Source mentions.
+- Confidence.
+- Linked pages and docs.
+- Relationship edges.
+- Provenance.
 
 The app should expose entity pages that show:
 
-* Summary.
-* Linked documents.
-* Mention timeline.
-* Related entities.
-* Source snippets.
-* Open questions or unresolved mentions.
+- Summary.
+- Linked documents.
+- Mention timeline.
+- Related entities.
+- Source snippets.
+- Open questions or unresolved mentions.
 
 This is the main differentiated feature. Notion and Craft organize documents. This product should organize the meaning inside documents.
 
@@ -349,13 +349,13 @@ MVP assistant should be narrow and grounded.
 
 Capabilities:
 
-* Ask questions across the imported workspace.
-* Summarize a page, folder, collection, or Google Doc.
-* Generate a brief from selected sources.
-* Explain why a result was returned.
-* Suggest related pages and entities.
-* Identify duplicate or stale pages.
-* Create a draft page from source material.
+- Ask questions across the imported workspace.
+- Summarize a page, folder, collection, or Google Doc.
+- Generate a brief from selected sources.
+- Explain why a result was returned.
+- Suggest related pages and entities.
+- Identify duplicate or stale pages.
+- Create a draft page from source material.
 
 Every answer should include citations or source references.
 
@@ -365,23 +365,23 @@ The assistant should not answer from general model knowledge unless explicitly r
 
 Each page should have a source panel showing:
 
-* Created in app or imported.
-* Original source system.
-* Original path or URL.
-* Import timestamp.
-* Source file hash.
-* Last sync timestamp.
-* Linked external document.
-* Related import batch.
-* Enrichment status.
+- Created in app or imported.
+- Original source system.
+- Original path or URL.
+- Import timestamp.
+- Source file hash.
+- Last sync timestamp.
+- Linked external document.
+- Related import batch.
+- Enrichment status.
 
 For AI-generated content, show:
 
-* Sources used.
-* Prompt or task summary.
-* Generation timestamp.
-* Model used if available.
-* User who generated it.
+- Sources used.
+- Prompt or task summary.
+- Generation timestamp.
+- Model used if available.
+- User who generated it.
 
 ⸻
 
@@ -391,72 +391,72 @@ For AI-generated content, show:
 
 Left sidebar:
 
-* Search.
-* Inbox.
-* Recent.
-* Favorites.
-* Pages.
-* Collections.
-* Sources.
-* Entities.
-* Import Center.
-* Settings.
+- Search.
+- Inbox.
+- Recent.
+- Favorites.
+- Pages.
+- Collections.
+- Sources.
+- Entities.
+- Import Center.
+- Settings.
 
-8.2 Page View
+    8.2 Page View
 
 Page layout:
 
-* Title area.
-* Metadata row.
-* Body content.
-* Right-side context panel.
+- Title area.
+- Metadata row.
+- Body content.
+- Right-side context panel.
 
 Right-side context panel tabs:
 
-* Outline.
-* Source.
-* Entities.
-* Backlinks.
-* Related.
-* AI.
+- Outline.
+- Source.
+- Entities.
+- Backlinks.
+- Related.
+- AI.
 
-8.3 Import Center
+    8.3 Import Center
 
 Import Center should show:
 
-* Import batches.
-* Status.
-* Progress.
-* Error list.
-* Review queue.
-* Resolved/unresolved links.
-* Unsupported content.
-* Re-run enrichment button.
+- Import batches.
+- Status.
+- Progress.
+- Error list.
+- Review queue.
+- Resolved/unresolved links.
+- Unsupported content.
+- Re-run enrichment button.
 
-8.4 Entity View
+    8.4 Entity View
 
 Entity page should show:
 
-* Canonical entity name.
-* Type.
-* Summary.
-* Aliases.
-* Mentioned in.
-* Related entities.
-* Timeline.
-* Source snippets.
-* Confidence and merge controls.
+- Canonical entity name.
+- Type.
+- Summary.
+- Aliases.
+- Mentioned in.
+- Related entities.
+- Timeline.
+- Source snippets.
+- Confidence and merge controls.
 
-8.5 Collections View
+    8.5 Collections View
 
 Collection page should support:
 
-* Table view.
-* List view.
-* Board view.
-* Field configuration.
-* Record page opening.
-* Filtering and sorting.
+- Table view.
+- List view.
+- Board view.
+- Field configuration.
+- Record page opening.
+- Filtering and sorting.
 
 ⸻
 
@@ -466,32 +466,32 @@ Collection page should support:
 
 Frontend:
 
-* Next.js or Vite/React.
-* TypeScript.
-* Tailwind.
-* shadcn/ui.
-* TipTap, Lexical, or Markdown editor.
+- Next.js or Vite/React.
+- TypeScript.
+- Tailwind.
+- shadcn/ui.
+- TipTap, Lexical, or Markdown editor.
 
 Backend:
 
-* Node/TypeScript API layer or Python/FastAPI if better aligned with existing Lovelace services.
-* Postgres as primary database.
-* pgvector for embeddings if using Postgres-native vector search.
-* Redis, Upstash, Vercel KV, or equivalent KV cache.
-* Background job queue for imports, parsing, sync, embeddings, and enrichment.
+- Node/TypeScript API layer or Python/FastAPI if better aligned with existing Lovelace services.
+- Postgres as primary database.
+- pgvector for embeddings if using Postgres-native vector search.
+- Redis, Upstash, Vercel KV, or equivalent KV cache.
+- Background job queue for imports, parsing, sync, embeddings, and enrichment.
 
 Storage:
 
-* Object storage for uploaded exports and attachments.
-* Postgres for structured metadata and canonical records.
-* KV cache for fast-rendered page HTML, search result caches, import status, and sync state.
+- Object storage for uploaded exports and attachments.
+- Postgres for structured metadata and canonical records.
+- KV cache for fast-rendered page HTML, search result caches, import status, and sync state.
 
 Graph/context layer:
 
-* YottaGraph integration for entity extraction, disambiguation, relationship enrichment, and graph traversal.
-* Store local references to graph entity IDs in Postgres.
+- YottaGraph integration for entity extraction, disambiguation, relationship enrichment, and graph traversal.
+- Store local references to graph entity IDs in Postgres.
 
-9.2 High-Level Data Flow
+    9.2 High-Level Data Flow
 
 Notion export flow:
 
@@ -531,231 +531,231 @@ AI retrieval flow:
 
 workspaces
 
-* id
-* name
-* slug
-* created_at
-* updated_at
+- id
+- name
+- slug
+- created_at
+- updated_at
 
 users
 
-* id
-* email
-* name
-* avatar_url
-* created_at
-* updated_at
+- id
+- email
+- name
+- avatar_url
+- created_at
+- updated_at
 
 workspace_members
 
-* id
-* workspace_id
-* user_id
-* role
-* created_at
+- id
+- workspace_id
+- user_id
+- role
+- created_at
 
 pages
 
-* id
-* workspace_id
-* parent_page_id
-* title
-* slug
-* emoji
-* content_markdown
-* content_blocks_jsonb
-* rendered_html_cache_key
-* source_id
-* source_object_id
-* created_by
-* updated_by
-* created_at
-* updated_at
-* deleted_at
-* import_status
+- id
+- workspace_id
+- parent_page_id
+- title
+- slug
+- emoji
+- content_markdown
+- content_blocks_jsonb
+- rendered_html_cache_key
+- source_id
+- source_object_id
+- created_by
+- updated_by
+- created_at
+- updated_at
+- deleted_at
+- import_status
 
 page_edges
 
-* id
-* workspace_id
-* from_page_id
-* to_page_id
-* edge_type
-* source
-* confidence
-* created_at
+- id
+- workspace_id
+- from_page_id
+- to_page_id
+- edge_type
+- source
+- confidence
+- created_at
 
 Edge types:
 
-* parent_child
-* backlink
-* mention
-* imported_link
-* related
-* duplicate_candidate
+- parent_child
+- backlink
+- mention
+- imported_link
+- related
+- duplicate_candidate
 
 collections
 
-* id
-* workspace_id
-* name
-* description
-* source_id
-* created_at
-* updated_at
+- id
+- workspace_id
+- name
+- description
+- source_id
+- created_at
+- updated_at
 
 collection_fields
 
-* id
-* collection_id
-* name
-* field_type
-* config_jsonb
-* position
-* created_at
+- id
+- collection_id
+- name
+- field_type
+- config_jsonb
+- position
+- created_at
 
 collection_records
 
-* id
-* collection_id
-* page_id
-* properties_jsonb
-* source_object_id
-* created_at
-* updated_at
+- id
+- collection_id
+- page_id
+- properties_jsonb
+- source_object_id
+- created_at
+- updated_at
 
 sources
 
-* id
-* workspace_id
-* source_type
-* display_name
-* status
-* config_jsonb
-* created_by
-* created_at
-* updated_at
+- id
+- workspace_id
+- source_type
+- display_name
+- status
+- config_jsonb
+- created_by
+- created_at
+- updated_at
 
 Source types:
 
-* notion_export
-* google_drive
-* google_doc
-* manual
-* upload
+- notion_export
+- google_drive
+- google_doc
+- manual
+- upload
 
 source_objects
 
-* id
-* source_id
-* external_id
-* external_url
-* original_path
-* title
-* mime_type
-* content_hash
-* metadata_jsonb
-* last_synced_at
-* created_at
-* updated_at
+- id
+- source_id
+- external_id
+- external_url
+- original_path
+- title
+- mime_type
+- content_hash
+- metadata_jsonb
+- last_synced_at
+- created_at
+- updated_at
 
 attachments
 
-* id
-* workspace_id
-* source_object_id
-* page_id
-* filename
-* mime_type
-* storage_url
-* size_bytes
-* content_hash
-* created_at
+- id
+- workspace_id
+- source_object_id
+- page_id
+- filename
+- mime_type
+- storage_url
+- size_bytes
+- content_hash
+- created_at
 
 import_batches
 
-* id
-* workspace_id
-* source_id
-* status
-* started_at
-* completed_at
-* stats_jsonb
-* errors_jsonb
-* created_by
+- id
+- workspace_id
+- source_id
+- status
+- started_at
+- completed_at
+- stats_jsonb
+- errors_jsonb
+- created_by
 
 import_items
 
-* id
-* import_batch_id
-* source_object_id
-* target_type
-* target_id
-* status
-* warnings_jsonb
-* errors_jsonb
-* created_at
+- id
+- import_batch_id
+- source_object_id
+- target_type
+- target_id
+- status
+- warnings_jsonb
+- errors_jsonb
+- created_at
 
 entities
 
-* id
-* workspace_id
-* yottagraph_entity_id
-* canonical_name
-* entity_type
-* aliases_jsonb
-* confidence
-* created_at
-* updated_at
+- id
+- workspace_id
+- yottagraph_entity_id
+- canonical_name
+- entity_type
+- aliases_jsonb
+- confidence
+- created_at
+- updated_at
 
 entity_mentions
 
-* id
-* workspace_id
-* entity_id
-* page_id
-* source_object_id
-* chunk_id
-* mention_text
-* context_snippet
-* confidence
-* start_offset
-* end_offset
-* created_at
+- id
+- workspace_id
+- entity_id
+- page_id
+- source_object_id
+- chunk_id
+- mention_text
+- context_snippet
+- confidence
+- start_offset
+- end_offset
+- created_at
 
 entity_relationships
 
-* id
-* workspace_id
-* from_entity_id
-* to_entity_id
-* relationship_type
-* evidence_jsonb
-* confidence
-* created_at
+- id
+- workspace_id
+- from_entity_id
+- to_entity_id
+- relationship_type
+- evidence_jsonb
+- confidence
+- created_at
 
 chunks
 
-* id
-* workspace_id
-* page_id
-* source_object_id
-* chunk_text
-* chunk_index
-* token_count
-* embedding
-* metadata_jsonb
-* created_at
+- id
+- workspace_id
+- page_id
+- source_object_id
+- chunk_text
+- chunk_index
+- token_count
+- embedding
+- metadata_jsonb
+- created_at
 
 ai_answers
 
-* id
-* workspace_id
-* user_id
-* question
-* answer_markdown
-* citations_jsonb
-* created_at
+- id
+- workspace_id
+- user_id
+- question
+- answer_markdown
+- citations_jsonb
+- created_at
 
 ⸻
 
@@ -763,55 +763,55 @@ ai_answers
 
 Workspace
 
-* GET /api/workspaces/:id
-* GET /api/workspaces/:id/navigation
+- GET /api/workspaces/:id
+- GET /api/workspaces/:id/navigation
 
 Pages
 
-* GET /api/pages/:id
-* POST /api/pages
-* PATCH /api/pages/:id
-* DELETE /api/pages/:id
-* GET /api/pages/:id/backlinks
-* GET /api/pages/:id/entities
-* GET /api/pages/:id/related
+- GET /api/pages/:id
+- POST /api/pages
+- PATCH /api/pages/:id
+- DELETE /api/pages/:id
+- GET /api/pages/:id/backlinks
+- GET /api/pages/:id/entities
+- GET /api/pages/:id/related
 
 Collections
 
-* GET /api/collections
-* POST /api/collections
-* GET /api/collections/:id
-* PATCH /api/collections/:id
-* POST /api/collections/:id/records
-* PATCH /api/collections/:id/records/:recordId
+- GET /api/collections
+- POST /api/collections
+- GET /api/collections/:id
+- PATCH /api/collections/:id
+- POST /api/collections/:id/records
+- PATCH /api/collections/:id/records/:recordId
 
 Import
 
-* POST /api/imports/notion/upload
-* GET /api/imports/:batchId/status
-* GET /api/imports/:batchId/report
-* POST /api/imports/:batchId/retry
+- POST /api/imports/notion/upload
+- GET /api/imports/:batchId/status
+- GET /api/imports/:batchId/report
+- POST /api/imports/:batchId/retry
 
 Google Drive
 
-* GET /api/integrations/google/auth-url
-* POST /api/integrations/google/callback
-* GET /api/integrations/google/files
-* POST /api/integrations/google/sync
-* GET /api/integrations/google/sync/:syncId/status
+- GET /api/integrations/google/auth-url
+- POST /api/integrations/google/callback
+- GET /api/integrations/google/files
+- POST /api/integrations/google/sync
+- GET /api/integrations/google/sync/:syncId/status
 
 Search
 
-* POST /api/search
-* POST /api/search/semantic
-* POST /api/ask
+- POST /api/search
+- POST /api/search/semantic
+- POST /api/ask
 
 Entities
 
-* GET /api/entities
-* GET /api/entities/:id
-* PATCH /api/entities/:id
-* POST /api/entities/:id/merge
+- GET /api/entities
+- GET /api/entities/:id
+- PATCH /api/entities/:id
+- POST /api/entities/:id/merge
 
 ⸻
 
@@ -821,116 +821,116 @@ Phase 1: App Foundation
 
 Build:
 
-* Next.js app shell.
-* Auth placeholder or basic auth.
-* Postgres schema and migrations.
-* Workspace layout.
-* Sidebar navigation.
-* Page creation and editing.
-* Basic Markdown rendering.
-* Source and provenance panel.
+- Next.js app shell.
+- Auth placeholder or basic auth.
+- Postgres schema and migrations.
+- Workspace layout.
+- Sidebar navigation.
+- Page creation and editing.
+- Basic Markdown rendering.
+- Source and provenance panel.
 
 Acceptance criteria:
 
-* User can create, edit, and delete pages.
-* Pages can be nested.
-* Sidebar reflects hierarchy.
-* Page content persists in Postgres.
-* Rendered page loads quickly.
+- User can create, edit, and delete pages.
+- Pages can be nested.
+- Sidebar reflects hierarchy.
+- Page content persists in Postgres.
+- Rendered page loads quickly.
 
 Phase 2: Notion Export Importer
 
 Build:
 
-* Zip upload.
-* File extraction.
-* Markdown parser.
-* HTML parser if needed.
-* CSV-to-collection converter.
-* Internal link resolver.
-* Attachment storage.
-* Import report UI.
+- Zip upload.
+- File extraction.
+- Markdown parser.
+- HTML parser if needed.
+- CSV-to-collection converter.
+- Internal link resolver.
+- Attachment storage.
+- Import report UI.
 
 Acceptance criteria:
 
-* User can upload a Notion export zip.
-* Pages are imported with hierarchy.
-* CSV files become collections.
-* Attachments are preserved.
-* Internal links are rewritten where possible.
-* Import report identifies unresolved items.
+- User can upload a Notion export zip.
+- Pages are imported with hierarchy.
+- CSV files become collections.
+- Attachments are preserved.
+- Internal links are rewritten where possible.
+- Import report identifies unresolved items.
 
 Phase 3: Search and Retrieval
 
 Build:
 
-* Full-text search.
-* Chunking pipeline.
-* Embedding generation.
-* Semantic search.
-* Search results UI.
-* Filters by type, source, tag, and date.
+- Full-text search.
+- Chunking pipeline.
+- Embedding generation.
+- Semantic search.
+- Search results UI.
+- Filters by type, source, tag, and date.
 
 Acceptance criteria:
 
-* User can search imported workspace.
-* Results include snippets and source metadata.
-* Semantic queries return useful related content.
-* Search works across pages and collections.
+- User can search imported workspace.
+- Results include snippets and source metadata.
+- Semantic queries return useful related content.
+- Search works across pages and collections.
 
 Phase 4: Google Docs Integration
 
 Build:
 
-* Google OAuth.
-* Drive file picker or folder selection.
-* Google Doc content indexing.
-* External document source records.
-* Refresh sync.
-* Open in Google Docs links.
+- Google OAuth.
+- Drive file picker or folder selection.
+- Google Doc content indexing.
+- External document source records.
+- Refresh sync.
+- Open in Google Docs links.
 
 Acceptance criteria:
 
-* User can connect Google Drive.
-* User can select docs or folders to index.
-* Google Docs appear in search.
-* Metadata and modified time are stored.
-* User can open source doc externally.
+- User can connect Google Drive.
+- User can select docs or folders to index.
+- Google Docs appear in search.
+- Metadata and modified time are stored.
+- User can open source doc externally.
 
 Phase 5: YottaGraph Enrichment
 
 Build:
 
-* Enrichment job queue.
-* Entity extraction integration.
-* Local entity store.
-* Entity mentions.
-* Entity pages.
-* Related documents and entity graph view.
+- Enrichment job queue.
+- Entity extraction integration.
+- Local entity store.
+- Entity mentions.
+- Entity pages.
+- Related documents and entity graph view.
 
 Acceptance criteria:
 
-* Imported pages and Google Docs are enriched.
-* Entity pages show linked documents and snippets.
-* Users can browse by person, organization, product, project, or concept.
-* Entity relationships include provenance.
+- Imported pages and Google Docs are enriched.
+- Entity pages show linked documents and snippets.
+- Users can browse by person, organization, product, project, or concept.
+- Entity relationships include provenance.
 
 Phase 6: Grounded AI Assistant
 
 Build:
 
-* Ask workspace endpoint.
-* Retrieval pipeline using keyword, vector, and graph results.
-* Citation builder.
-* Assistant UI panel.
-* Save answer as page option.
+- Ask workspace endpoint.
+- Retrieval pipeline using keyword, vector, and graph results.
+- Citation builder.
+- Assistant UI panel.
+- Save answer as page option.
 
 Acceptance criteria:
 
-* User can ask questions across workspace content.
-* Answers include cited source links.
-* Assistant refuses or narrows when sources are insufficient.
-* User can generate a draft page from selected sources.
+- User can ask questions across workspace content.
+- Answers include cited source links.
+- Assistant refuses or narrows when sources are insufficient.
+- User can generate a draft page from selected sources.
 
 ⸻
 
@@ -941,6 +941,7 @@ Use the following as the initial Cursor instruction:
 Build a lightweight knowledge management web app inspired by Notion and Craft, optimized for importing an exported Notion workspace, indexing Google Docs, and organizing knowledge through a graph-backed context layer.
 Use Next.js, TypeScript, Tailwind, shadcn/ui, Postgres, and a KV cache. Postgres is the system of record. The app should create and manage its own database schema. Use object storage abstraction for uploaded Notion exports and attachments. Assume a future YottaGraph API will enrich documents with entities and relationships, but create local placeholder interfaces and tables now.
 The MVP should include:
+
 1. Workspace shell with sidebar navigation, pages, collections, sources, entities, search, import center, and settings.
 2. Page model with nested pages, Markdown content, optional block JSON, source metadata, backlinks, tags, and linked entities.
 3. Simple editor and reader view.
@@ -949,8 +950,8 @@ The MVP should include:
 6. Search foundation with Postgres full-text search, chunk table, optional pgvector embeddings, and filters.
 7. Entity enrichment scaffold with local tables for entities, mentions, relationships, and provenance.
 8. Grounded assistant scaffold that retrieves chunks and returns answers with citations.
-Prioritize clean architecture, simple UI, source fidelity, and migration reliability. Do not attempt full Notion feature parity. Do not build complex formulas, multiplayer editing, or a full Google Docs editor in the first version.
-Start by generating the database schema, application routes, core UI layout, and page CRUD. Then add the Notion import pipeline as a background job with an import status UI.
+   Prioritize clean architecture, simple UI, source fidelity, and migration reliability. Do not attempt full Notion feature parity. Do not build complex formulas, multiplayer editing, or a full Google Docs editor in the first version.
+   Start by generating the database schema, application routes, core UI layout, and page CRUD. Then add the Notion import pipeline as a background job with an import status UI.
 
 ⸻
 
@@ -1014,16 +1015,16 @@ Create an assistant panel that accepts a user question, retrieves relevant chunk
 
 The MVP is successful when:
 
-* A user can upload a Notion export zip and see imported pages in a navigable hierarchy.
-* The app preserves source metadata for every imported object.
-* CSV files become basic collections.
-* Internal links are resolved when possible.
-* The user can search imported content.
-* The user can connect or scaffold connection to Google Docs and index document metadata/content.
-* The app can show source provenance for pages and AI answers.
-* The app can show extracted entities and related documents.
-* The assistant can answer simple questions using cited workspace sources.
-* The product feels simpler than Notion, not heavier.
+- A user can upload a Notion export zip and see imported pages in a navigable hierarchy.
+- The app preserves source metadata for every imported object.
+- CSV files become basic collections.
+- Internal links are resolved when possible.
+- The user can search imported content.
+- The user can connect or scaffold connection to Google Docs and index document metadata/content.
+- The app can show source provenance for pages and AI answers.
+- The app can show extracted entities and related documents.
+- The assistant can answer simple questions using cited workspace sources.
+- The product feels simpler than Notion, not heavier.
 
 ⸻
 
@@ -1033,65 +1034,65 @@ Risk 1: Notion export structure is inconsistent
 
 Mitigation:
 
-* Build an import inventory first.
-* Do not assume one export structure.
-* Preserve raw source paths.
-* Create a review queue for unresolved items.
+- Build an import inventory first.
+- Do not assume one export structure.
+- Preserve raw source paths.
+- Create a review queue for unresolved items.
 
 Risk 2: Google Docs API complexity slows build
 
 Mitigation:
 
-* Start with metadata and open links.
-* Add text indexing next.
-* Avoid native editing.
-* Treat Google Docs as external source-of-record.
+- Start with metadata and open links.
+- Add text indexing next.
+- Avoid native editing.
+- Treat Google Docs as external source-of-record.
 
 Risk 3: Editor work consumes the project
 
 Mitigation:
 
-* Use Markdown-first editing.
-* Add block editor later.
-* Do not chase Notion parity.
+- Use Markdown-first editing.
+- Add block editor later.
+- Do not chase Notion parity.
 
 Risk 4: AI answers hallucinate
 
 Mitigation:
 
-* Require citations.
-* Use retrieved source chunks only.
-* Show insufficient-source states.
-* Save provenance for generated outputs.
+- Require citations.
+- Use retrieved source chunks only.
+- Show insufficient-source states.
+- Save provenance for generated outputs.
 
 Risk 5: Graph enrichment becomes vague
 
 Mitigation:
 
-* Store explicit entity mentions, source snippets, confidence, and evidence.
-* Make entity pages inspectable.
-* Do not show relationships without provenance.
+- Store explicit entity mentions, source snippets, confidence, and evidence.
+- Make entity pages inspectable.
+- Do not show relationships without provenance.
 
 ⸻
 
 17. Future Features
 
-* Real-time collaboration.
-* More advanced block editor.
-* Notion API live sync.
-* Craft import support if export/API access is available.
-* MCP server for workspace retrieval.
-* Slack integration.
-* Gmail integration.
-* Proposal generator.
-* Meeting notes capture.
-* Duplicate detection and page consolidation.
-* Staleness detection.
-* Knowledge health dashboard.
-* Permission-aware retrieval.
-* Timeline views.
-* Graph visualization.
-* Export back to Markdown, HTML, CSV, or Google Docs.
+- Real-time collaboration.
+- More advanced block editor.
+- Notion API live sync.
+- Craft import support if export/API access is available.
+- MCP server for workspace retrieval.
+- Slack integration.
+- Gmail integration.
+- Proposal generator.
+- Meeting notes capture.
+- Duplicate detection and page consolidation.
+- Staleness detection.
+- Knowledge health dashboard.
+- Permission-aware retrieval.
+- Timeline views.
+- Graph visualization.
+- Export back to Markdown, HTML, CSV, or Google Docs.
 
 ⸻
 
@@ -1107,4 +1108,4 @@ Project just created. Run `/build_my_app` in Cursor to start building.
 
 ## Modules
 
-*None yet — the agent will populate this as features are built.*
+_None yet — the agent will populate this as features are built._
