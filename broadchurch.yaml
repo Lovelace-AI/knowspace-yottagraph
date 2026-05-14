@@ -1,0 +1,30 @@
+# Broadchurch project configuration
+# Auto-generated during tenant provisioning.
+
+gcp:
+  project: broadchurch
+  region: us-central1
+  staging_bucket: broadchurch-agent-staging
+
+tenant:
+  project_name: "knowspace"
+  display_name: "Knowspace"
+  org_id: "org_78tcumKYV6K7Ymix"
+  service_account: "tenant-78tcumkyv6k7ymix@broadchurch.iam.gserviceaccount.com"
+
+gateway:
+  url: "https://broadchurch-portal-194773164895.us-central1.run.app"
+  qs_api_key: "8be3db331edef25f7e7eb23593665e950d58c1372331fe546c63a3899e55cb53"
+
+query_server:
+  url: "https://query.news.prod.g.lovelace.ai"
+  audience: "queryserver:api"
+
+auth:
+  client_id: "plLUh5Upn53C0LPzUMbxDuSbSbVxLlQf"
+  audience: "queryserver:api"
+
+aether:
+  data_mode: "api-mcp"
+
+agents: {}
