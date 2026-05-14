@@ -1104,8 +1104,85 @@ If the imported Notion workspace becomes searchable, structured, cited, entity-l
 
 ## Status
 
-Project just created. Run `/build_my_app` in Cursor to start building.
+Phase 1 MVP complete — workspace shell, Postgres-backed page CRUD, and scaffolded entry points for every Phase 2-6 feature are in place. The app deploys to `knowspace.yottagraph.app` on push to `main`.
+
+See [`design/requirements.md`](design/requirements.md) for the phased priority list distilled from the Vision section above.
+
+## Architecture (as built)
+
+Stack adapted to Aether's actual runtime:
+
+- **Frontend:** Nuxt 3 SPA + Vue 3 (`<script setup>`) + Vuetify 3 + TypeScript (was Next.js in the brief)
+- **System of record:** Neon Postgres via `server/utils/neon.ts` (`store_3G7TFmC8YQ16s0uz`). Schema is created idempotently by `server/utils/schema.ts` on first DB hit.
+- **KV cache / preferences:** Upstash Redis via the existing `usePrefsStore()` / `Pref<T>` pattern
+- **Knowledge graph (`YottaGraph` in the brief):** the Lovelace platform's Elemental MCP, accessible via `useElementalClient()` and the `.agents/skills/elemental-api` skill
+- **Auth:** Auth0 (already wired by the Aether template)
+- **Search:** Postgres `to_tsvector` GIN indexes on pages + chunks (pgvector deferred to Phase 3)
+
+Single-workspace MVP: every signed-in user shares `ws_default`, seeded automatically on first access. Multi-workspace support is a future iteration.
 
 ## Modules
 
-_None yet — the agent will populate this as features are built._
+### App shell
+
+- `app.vue` — header + permanent left sidebar + main content
+- `components/WorkspaceSidebar.vue` — search box, favorites, recursive page tree, workspace section links
+- `components/PageTreeNode.vue` — collapsible hierarchical page row
+- `composables/useWorkspaceNav.ts` — shared module-level page list + tree builder, used by both sidebar and home
+
+### Postgres data layer
+
+- `server/utils/neon.ts` — lazy Neon client, returns `null` when `DATABASE_URL` is missing
+- `server/utils/schema.ts` — `ensureSchema()` creates the full schema described in DESIGN.md §10 idempotently
+- `server/utils/workspace.ts` — `getOrCreateDefaultWorkspace()`, `getUserSub()`, `newId()`, `slugify()`
+- `server/api/db/setup.post.ts` — explicit setup endpoint (also runs lazily on first read)
+- `server/api/status.get.ts` — reports KV / DB configuration state
+
+### Pages (CRUD + tree)
+
+- `server/api/pages/index.get.ts` — flat list (used by sidebar)
+- `server/api/pages/index.post.ts` — create
+- `server/api/pages/[id].get.ts` — full record + breadcrumbs + children
+- `server/api/pages/[id].patch.ts` — title / emoji / content / favorite / parent
+- `server/api/pages/[id].delete.ts` — soft delete
+- `server/api/pages/recent.get.ts`, `favorites.get.ts` — home page surfaces
+- `pages/index.vue` — home (recent + favorites + quick actions)
+- `pages/pages/[id].vue` — page view: title input, emoji cycle, Markdown editor (Read / Edit / Split modes), auto-save, breadcrumbs, child list, right-side Outline / Source / Entities / AI panel
+- `utils/markdown.ts` — `renderMarkdown()` via `marked` + `DOMPurify`, `stripMarkdown()` for previews
+
+### Collections
+
+- `server/api/collections/index.get.ts`, `index.post.ts`, `[id].get.ts`
+- `pages/collections/index.vue` — list + create dialog
+- `pages/collections/[id].vue` — Table / List / Board views; CSV imports will populate these
+
+### Sources
+
+- `server/api/sources/index.get.ts`, `index.post.ts`
+- `pages/sources.vue` — Notion + Google Drive connector cards plus the connected-sources list
+
+### Entities (graph layer)
+
+- `server/api/entities/index.get.ts`, `[id].get.ts` — read from local `entities` + `entity_mentions` + `entity_relationships`
+- `pages/entities/index.vue` — filterable browser
+- `pages/entities/[id].vue` — canonical name, type, summary, mentioned-in, related entities, provenance
+
+### Search + grounded assistant
+
+- `server/api/search.post.ts` — Postgres FTS across pages + ILIKE across collections + entities
+- `server/api/ask.post.ts` — retrieves top matching pages and returns them as citations; the assistant page reuses this from both `/search` and the AI tab on each page
+- `pages/search.vue` — search bar + filter chips + ask-workspace button with cited results
+
+### Import Center
+
+- `server/api/imports/index.get.ts` — list batches
+- `server/api/imports/notion/upload.post.ts` — records a queued batch (Phase 2 wires the actual parser)
+- `pages/import.vue` — upload card + batch list with status chips
+
+## Deferred to later phases
+
+- **Phase 2** — Notion zip extraction + parser (the upload route currently only records the batch)
+- **Phase 3** — Chunking + embeddings + pgvector semantic search
+- **Phase 4** — Google Drive OAuth + Docs content sync
+- **Phase 5** — Background entity extraction via Elemental MCP, populating `entities` / `entity_mentions`
+- **Phase 6** — `agents/knowspace_assistant/` ADK agent (currently `/api/ask` returns citations without a generative answer)

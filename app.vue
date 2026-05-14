@@ -2,21 +2,18 @@
     <v-app class="theme-brand">
         <template v-if="showAppFramework">
             <AppHeader />
+            <WorkspaceSidebar />
 
-            <v-main class="fill-height">
+            <v-main class="fill-height workspace-main">
                 <ServerStatus />
                 <NuxtPage />
             </v-main>
 
-            <!-- Global Dialogs -->
             <v-dialog v-model="state.showSettingsDialog" max-width="600">
                 <SettingsDialog />
             </v-dialog>
 
-            <!-- Global Notifications -->
             <NotificationContainer />
-
-            <!-- Server Status Footer -->
             <ServerStatusFooter />
         </template>
         <template v-else>
@@ -43,3 +40,9 @@
         return true;
     });
 </script>
+
+<style scoped>
+    .workspace-main {
+        background: #0a0a0a;
+    }
+</style>
