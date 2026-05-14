@@ -1104,8 +1104,74 @@ If the imported Notion workspace becomes searchable, structured, cited, entity-l
 
 ## Status
 
-Project just created. Run `/build_my_app` in Cursor to start building.
+**Phase 1–6 scaffolds built.** Nuxt 3 / Vue 3 / Vuetify implementation of the
+Knowspace MVP. KV (Upstash Redis) is the system of record for the MVP — the
+Postgres schema in section 10 of the PRD is mirrored 1:1 in the TypeScript
+types in `utils/knowspaceTypes.ts`, so a future migration is mechanical.
+
+### Stack choices (vs PRD)
+
+- **Frontend:** Nuxt 3 SPA + Vue 3 + Vuetify 3, not Next.js — this is an
+  Aether tenant project and Nuxt is the prescribed stack. UX intent is
+  preserved (Notion/Craft-like calm document workspace).
+- **Storage:** KV (Upstash Redis) is the always-available store. Records are
+  JSON blobs keyed by ID inside per-workspace Redis hashes. Server-route
+  shapes are designed so Postgres + pgvector can be swapped in later without
+  touching the client.
+- **Markdown:** Tiny built-in renderer in `utils/markdown.ts` — keeps the
+  scope minimal and avoids pulling in TipTap/Lexical for an MVP.
+
+### Built modules
+
+- **Workspace shell** — `components/AppSidebar.vue` adds permanent
+  navigation (Pages, Collections, Sources, Entities, Search, Assistant,
+  Import Center) with Recent and Favorites lists.
+- **Dashboard (`/`)** — Greeting, stat tiles, recent pages, import activity.
+- **Pages (`/pages`, `/pages/[id]`)** — Page tree, nested pages, Markdown
+  editor + viewer, favorites, delete with child reparenting, right-side
+  context panel with Source / Entities / Backlinks / AI tabs.
+- **Collections (`/collections`, `/collections/[id]`)** — Create, table /
+  list / kanban-board views, default fields, record CRUD with type-aware
+  inputs.
+- **Sources (`/sources`)** — Notion + Google Drive connector cards
+  (placeholder OAuth) plus a unified source list.
+- **Import Center (`/import`)** — Drag-and-drop zip upload that creates a
+  source, ingests a demonstration manifest into pages with naive parent
+  inference and link resolution, and reports stats + unresolved links.
+- **Entities (`/entities`, `/entities/[id]`)** — Lists entities extracted
+  by `server/utils/entityExtractor.ts` (placeholder for YottaGraph), with
+  mention snippets, linked pages, and confidence.
+- **Search (`/search`)** — Keyword search across pages, collections,
+  records, sources, entities. Supports type filters and shows matched
+  terms and scores.
+- **Assistant (`/assistant`)** — Grounded Q&A scaffold. Chunks workspace
+  text, scores chunks against the question, and returns citation-backed
+  passages. Shows an "insufficient sources" state when the workspace is
+  empty rather than hallucinating.
+- **Server routes** — `server/api/workspace/{pages,collections,sources,entities,imports,search,ask,navigation}/`
+  back every UI surface through `requireAuth` + `getRedis()`. Routes return
+  503 if KV is not configured.
+
+### Known limits / next steps
+
+- Real Notion zip parsing (Markdown + HTML + CSV extraction) — the upload
+  route currently writes a small demonstration manifest. The shape of
+  `imports/notion-upload` accepts a manifest from the client, so a parser
+  can replace it without changing the API.
+- Google OAuth — connector is a placeholder source record. Plug a real
+  OAuth flow into `server/api/workspace/sources/...`.
+- Embeddings + pgvector — `chunkText` is wired up in the ask route, but
+  semantic ranking requires an embedding provider and Neon Postgres.
+- YottaGraph entity API — `entityExtractor.ts` is a regex placeholder.
+  Swap in a real enrichment client once available.
 
 ## Modules
 
-_None yet — the agent will populate this as features are built._
+- `components/AppSidebar.vue`, `components/PageTreeNode.vue`
+- `composables/useKnowspace.ts`
+- `pages/index.vue`, `pages/pages/`, `pages/collections/`, `pages/sources.vue`,
+  `pages/entities/`, `pages/import.vue`, `pages/search.vue`,
+  `pages/assistant.vue`
+- `server/api/workspace/` — all workspace CRUD + search + ask
+- `server/utils/workspace.ts`, `server/utils/entityExtractor.ts`
+- `utils/knowspaceTypes.ts`, `utils/markdown.ts`
