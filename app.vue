@@ -5,7 +5,6 @@
             <WorkspaceSidebar />
 
             <v-main class="fill-height workspace-main">
-                <ServerStatus />
                 <NuxtPage />
             </v-main>
 
@@ -14,7 +13,6 @@
             </v-dialog>
 
             <NotificationContainer />
-            <ServerStatusFooter />
         </template>
         <template v-else>
             <NuxtPage />

@@ -14,24 +14,9 @@
                 {{ authError }}
             </v-alert>
 
-            <!-- Server unavailable alert -->
-            <v-alert
-                v-if="serverStatus === 'unavailable'"
-                type="warning"
-                density="compact"
-                variant="tonal"
-                class="mb-4"
-            >
-                <v-icon icon="mdi-server-off" size="small" class="mr-1"></v-icon>
-                Server is unavailable
-            </v-alert>
-
             <!-- Login Button -->
             <v-btn
-                :color="isLoginDisabled ? 'grey' : undefined"
-                :text="loginButtonText"
-                :disabled="isLoginDisabled"
-                :loading="serverStatus === 'checking'"
+                text="LOGIN"
                 @click="redirectToLogin"
                 variant="flat"
                 size="large"
@@ -47,38 +32,13 @@
 </template>
 
 <script lang="ts" setup>
-    import { useServerStatus } from '~/composables/useServerStatus';
-
     const uiVersion = ref('(unknown)');
     const authError = ref<string | null>(null);
     const route = useRoute();
 
-    // Get app configuration
     const { appName } = useAppInfo();
 
-    // Get server status
-    const { serverStatus, startChecking, stopChecking } = useServerStatus();
-
-    // Computed properties
-    const isLoginDisabled = computed(
-        () => serverStatus.value === 'unavailable' || serverStatus.value === 'checking'
-    );
-
-    const loginButtonText = computed(() => {
-        if (serverStatus.value === 'checking') {
-            return 'CHECKING SERVER...';
-        }
-        if (serverStatus.value === 'unavailable') {
-            return 'SERVER UNAVAILABLE';
-        }
-        return 'LOGIN';
-    });
-
     onMounted(() => {
-        // Start checking server status
-        startChecking();
-
-        // Check for error in query params
         if (route.query.error) {
             authError.value = route.query.error as string;
         }
@@ -92,11 +52,6 @@
         if (index !== -1) {
             uiVersion.value = versionString.slice(index + 8);
         }
-    });
-
-    onUnmounted(() => {
-        // Stop checking when leaving the login page
-        stopChecking();
     });
 
     async function redirectToLogin() {
