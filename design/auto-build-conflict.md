@@ -38,6 +38,80 @@ All timestamps Eastern. Reconstructed from `git log --all` and `git reflog`.
 The auto-build had a ~13-minute head start (clone 17:30 vs auto-build push
 17:43). The interactive session was about 2 minutes behind on the push.
 
+## Where the auto-build actually ran
+
+The auto-build was **not** a second Cursor session on the user's laptop. It
+was a Cursor Cloud Agent running in Cursor's own infrastructure, kicked off
+by the Broadchurch portal via Cursor's API. Five independent signals
+confirm this:
+
+### 1. The portal recorded launching it
+
+`GET /api/tenants/org_78tcumKYV6K7Ymix` on the Broadchurch portal returns
+an `auto_build` block:
+
+```json
+{
+    "agent_id": "bc-83f409c3-7b14-4bd1-a27d-eff4050fc206",
+    "status": "CREATING",
+    "model": "claude-opus-4-7-thinking-high",
+    "started_at": "2026-05-14T21:26:26.393Z"
+}
+```
+
+That's the portal saying it asked Cursor to spin up an agent 39 seconds
+after `aether-setup[bot]` finished. The `bc-` prefix is Broadchurch's
+internal ID for the agent it provisioned; the model was selected by the
+portal, not by the user's IDE.
+
+### 2. The commit author is Cursor's hosted identity
+
+```bash
+$ git cat-file -p ffa61aa | head -5
+tree 032db9a38e7fc9af1688f337e9f34679ad395ebb
+parent 4937b63cd6ee073be7d2c45fa34cd7dcf58cbf59
+author Cursor Agent <cursoragent@cursor.com> 1778794992 +0000
+committer Cursor Agent <cursoragent@cursor.com> 1778794992 +0000
+```
+
+`cursoragent@cursor.com` is Cursor's identity for their hosted Background /
+Cloud Agents service. Interactive sessions commit as the developer's git
+identity (here, `lovelace-bongo`); cloud agents commit as
+`cursoragent@cursor.com`.
+
+### 3. The committing machine was on UTC
+
+`1778794992 +0000` is a UTC timestamp. Every commit made from the user's
+Mac in this repo is on `-0400` (EDT). A `+0000` offset means the commit
+machine's clock was set to UTC, which is typical of cloud build VMs.
+
+### 4. The commit was signed with a key the user doesn't have
+
+`ffa61aa` is GPG-signed via SSH (Git's `gpg.format=ssh` mode). The
+embedded ed25519 public key fingerprint starts with `+qImwGMCy/grKZ50V`
+— it is not present in the user's local SSH agent or `~/.ssh/`. Cursor
+issues that key inside the cloud agent's VM.
+
+### 5. The portal still thinks it's "CREATING"
+
+The `status` field above is stuck at `CREATING`, even though the commit
+landed and the agent's work has been replaced. The portal's lifecycle
+tracker apparently never received a completion callback — most likely
+because the agent's commit became unreachable after the force-push and
+the portal can't reconcile that.
+
+### Conclusion
+
+The other agent ran in Cursor's cloud (UTC-clock VM, Cursor's signing
+key, Cursor's email identity), provisioned by the Broadchurch portal
+with a specific model (`claude-opus-4-7-thinking-high`). The user only
+ever had the one Cursor session open on their Mac. The two agents were
+working from the same `DESIGN.md` because the auto-build agent clones
+the repo on startup just like an interactive session does.
+
+The 16-minute-46-second window between `started_at` (21:26:26 UTC) and
+`AuthorDate` (21:43:12 UTC) is the cloud agent's wall-clock build time.
+
 ## How I discovered the conflict
 
 1. Ran `git push origin main` after committing the Postgres MVP locally.
@@ -164,6 +238,14 @@ In rough order of effort vs. impact:
 5. **Have the portal include a "scaffold completed" notification** so the
    user knows an auto-build ran. The first I knew about it was at push
    time.
+6. **Fix the portal's auto-build lifecycle tracking.** The tenant payload
+   still reports `auto_build.status = "CREATING"` for this project even
+   though `ffa61aa` was committed and pushed ~17 minutes after start, and
+   then force-pushed off `main` ~5 minutes later. The portal should be
+   subscribed to a webhook from Cursor (or polling) so it can move through
+   `CREATING -> RUNNING -> COMPLETED` / `FAILED` / `SUPERSEDED`. Right now
+   we have no way to tell from the portal whether an auto-build is mid-run
+   or stuck.
 
 ## What got force-pushed
 
