@@ -1,6 +1,7 @@
 import { commitBundle } from '~/server/utils/notionImport';
 import { isDbConfigured } from '~/server/utils/neon';
-import { getOrCreateDefaultWorkspace, getUserSub, newId } from '~/server/utils/workspace';
+import { getOrCreateDefaultWorkspace, getUserSub } from '~/server/utils/workspace';
+import { newId } from '~/server/utils/ids';
 import { getDb } from '~/server/utils/neon';
 import { ensureSchema } from '~/server/utils/schema';
 

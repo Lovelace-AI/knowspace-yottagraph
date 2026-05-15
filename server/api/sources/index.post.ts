@@ -1,5 +1,6 @@
 import { getDb } from '~/server/utils/neon';
-import { getOrCreateDefaultWorkspace, getUserSub, newId } from '~/server/utils/workspace';
+import { getOrCreateDefaultWorkspace, getUserSub } from '~/server/utils/workspace';
+import { newId } from '~/server/utils/ids';
 
 interface CreateSourceBody {
     source_type: string;

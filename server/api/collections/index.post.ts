@@ -1,5 +1,6 @@
 import { getDb } from '~/server/utils/neon';
-import { getOrCreateDefaultWorkspace, newId } from '~/server/utils/workspace';
+import { getOrCreateDefaultWorkspace } from '~/server/utils/workspace';
+import { newId } from '~/server/utils/ids';
 
 interface CreateCollectionBody {
     name?: string;

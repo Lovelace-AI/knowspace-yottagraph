@@ -1,5 +1,6 @@
 import { getDb } from '~/server/utils/neon';
-import { getOrCreateDefaultWorkspace, getUserSub, newId, slugify } from '~/server/utils/workspace';
+import { getOrCreateDefaultWorkspace, getUserSub } from '~/server/utils/workspace';
+import { newId, slugify } from '~/server/utils/ids';
 
 interface CreatePageBody {
     title?: string;

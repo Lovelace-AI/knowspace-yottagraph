@@ -4,7 +4,9 @@ import { getDb } from './neon';
 import { ensureSchema } from './schema';
 import { unsealCookie } from './cookies';
 
-export { newId, slugify } from './ids';
+// `newId` and `slugify` live in `./ids` and are auto-imported by Nuxt
+// elsewhere. Don't re-export them here — that creates duplicate-import
+// warnings and shadowed bindings.
 
 const DEFAULT_WORKSPACE_ID = 'ws_default';
 const DEFAULT_WORKSPACE_SLUG = 'default';
