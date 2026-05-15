@@ -30,6 +30,39 @@ import * as path from 'node:path';
 
 import { parseNotionExport, rewriteLinks, type ParsedExport } from './lib/notionParser';
 
+/**
+ * Auto-load env vars from local dotfiles in priority order so
+ * `npm run notion-prep -- --commit` and `--upload` work without the
+ * caller exporting DATABASE_URL / QS_API_KEY by hand. Files are loaded
+ * ONLY when the variable isn't already set (env wins).
+ *
+ * Priority: .env.local > .env.production > .env. The first file that
+ * defines a variable wins.
+ */
+function loadDotEnvFiles() {
+    const candidates = ['.env.local', '.env.production', '.env'];
+    for (const file of candidates) {
+        if (!fs.existsSync(file)) continue;
+        const text = fs.readFileSync(file, 'utf-8');
+        for (const rawLine of text.split('\n')) {
+            const line = rawLine.trim();
+            if (!line || line.startsWith('#')) continue;
+            const eq = line.indexOf('=');
+            if (eq < 0) continue;
+            const key = line.slice(0, eq).trim();
+            let val = line.slice(eq + 1).trim();
+            if (
+                (val.startsWith('"') && val.endsWith('"')) ||
+                (val.startsWith("'") && val.endsWith("'"))
+            ) {
+                val = val.slice(1, -1);
+            }
+            if (process.env[key] === undefined) process.env[key] = val;
+        }
+    }
+}
+loadDotEnvFiles();
+
 interface Args {
     path: string;
     exclude: string[];
@@ -199,12 +232,24 @@ async function commitDirect(bundle: ReturnType<typeof buildBundle>): Promise<voi
     console.log(`  duration:             ${(result.duration_ms / 1000).toFixed(1)}s`);
 }
 
+function readQsApiKeyFromBroadchurchYaml(): string | null {
+    if (!fs.existsSync('broadchurch.yaml')) return null;
+    const text = fs.readFileSync('broadchurch.yaml', 'utf-8');
+    const m = text.match(/qs_api_key:\s*["']?([0-9a-fA-F]+)["']?/);
+    return m ? m[1] : null;
+}
+
 async function uploadToDeployment(
     bundle: ReturnType<typeof buildBundle>,
     baseUrl: string,
     apiKey: string | null
 ): Promise<void> {
-    const key = apiKey || process.env.QS_API_KEY || process.env.KNOWSPACE_API_KEY || null;
+    const key =
+        apiKey ||
+        process.env.QS_API_KEY ||
+        process.env.KNOWSPACE_API_KEY ||
+        readQsApiKeyFromBroadchurchYaml() ||
+        null;
     if (!key) {
         console.error(`
 --upload requires an API key. Provide one of:

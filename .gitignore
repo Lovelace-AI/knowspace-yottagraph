@@ -18,6 +18,9 @@ node_modules
 .env
 .env.local
 .env.*.local
+.env.production
+.env.development
+.env.preview
 # Environment files to keep! These are templates or use env vars, not secrets.
 # .env.example - template
 # .npmrc - uses ${NPM_TOKEN}
@@ -56,3 +59,4 @@ yarn-error.log*
 # Platform-specific
 .DS_Store
 Thumbs.db
+.vercel
