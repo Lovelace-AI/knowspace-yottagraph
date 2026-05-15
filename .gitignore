@@ -21,6 +21,16 @@ node_modules
 .env.production
 .env.development
 .env.preview
+
+# Commercial fonts (FK Grotesk) installed locally for dev only.
+# See public/fonts/README.md for setup. Production hosting: TBD.
+public/fonts/*.otf
+public/fonts/*.woff
+public/fonts/*.woff2
+public/fonts/*.ttf
+# Generated at build time by scripts/build-fonts-css.ts based on which
+# font files exist in public/fonts/. Do not edit by hand.
+assets/fonts.generated.css
 # Environment files to keep! These are templates or use env vars, not secrets.
 # .env.example - template
 # .npmrc - uses ${NPM_TOKEN}

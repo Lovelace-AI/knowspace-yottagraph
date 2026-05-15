@@ -138,7 +138,12 @@ export default defineNuxtConfig({
         },
     },
 
-    css: ['~/assets/fonts.css', '~/assets/brand-globals.css', '~/assets/theme-styles.css'],
+    css: [
+        '~/assets/fonts.css',
+        '~/assets/fonts.generated.css',
+        '~/assets/brand-globals.css',
+        '~/assets/theme-styles.css',
+    ],
 
     // Runtime configuration with sensible defaults
     // Nuxt automatically overrides these with environment variables following the pattern:

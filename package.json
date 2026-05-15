@@ -4,17 +4,19 @@
     "version": "2.0.0",
     "description": "Aether app: Knowspace",
     "scripts": {
-        "predev": "test -f .env || node init-project.js --local",
+        "predev": "(test -f .env || node init-project.js --local) && npm run build-fonts",
         "dev": "nuxt dev",
         "start": "node .output/server/index.mjs",
         "init": "node init-project.js",
+        "prebuild": "npm run build-fonts",
         "build": "NODE_ENV=production NODE_OPTIONS='--max-old-space-size=8192' nuxt build",
+        "build-fonts": "tsx scripts/build-fonts-css.ts",
         "generate": "nuxt generate",
         "preview": "nuxt preview",
         "format": "prettier --write \"**/*.{js,ts,vue,json,md}\" --ignore-path .gitignore --ignore-path .prettierignore",
         "format:check": "prettier --check \"**/*.{js,ts,vue,json,md}\" --ignore-path .gitignore --ignore-path .prettierignore",
         "notion-prep": "tsx scripts/notion-prep.ts",
-        "postinstall": "npx nuxi prepare",
+        "postinstall": "npx nuxi prepare && npm run build-fonts",
         "prepare": "husky"
     },
     "lint-staged": {

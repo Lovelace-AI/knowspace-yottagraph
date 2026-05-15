@@ -29,7 +29,6 @@ export function useServerStatus() {
             const serverAddress = config.public[server.configKey] as string;
 
             if (!serverAddress) {
-                console.log('[ServerStatus] No query server address configured');
                 server.status = 'not-configured';
                 server.address = undefined;
                 return;
@@ -40,18 +39,20 @@ export function useServerStatus() {
                 : `https://${serverAddress}`;
 
             server.address = baseURL;
-            console.log('[ServerStatus] Checking query server at:', baseURL);
 
             await $fetch('/status', {
                 baseURL,
-                timeout: 5000,
+                timeout: 3000,
             });
 
             server.status = 'available';
             server.error = undefined;
             server.lastChecked = new Date();
         } catch (error) {
-            console.warn('[ServerStatus] Query server check failed:', error);
+            // Knowspace doesn't depend on the query server (entity enrichment
+            // is Phase 5). Surface the unavailable state in the footer
+            // indicator but stay silent in the console so failed pings don't
+            // look like an app error.
             server.status = 'unavailable';
             server.error = error instanceof Error ? error.message : 'Unknown error';
             server.lastChecked = new Date();
