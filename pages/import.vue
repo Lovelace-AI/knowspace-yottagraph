@@ -16,22 +16,25 @@
                 <v-icon size="32" color="primary">mdi-tray-arrow-down</v-icon>
             </div>
             <div class="upload-meta">
-                <div class="upload-title">Upload Notion export</div>
+                <div class="upload-title">Upload Notion bundle</div>
                 <div class="upload-sub">
-                    Drop a Notion workspace zip here. We'll parse pages, attachments, and CSV
-                    databases, preserve source paths, and produce an import report.
+                    Generate a bundle locally with
+                    <code>npm run notion-prep -- --path &lt;export&gt; --out bundle.json</code>
+                    (apply <code>--exclude "Contacts,Accounts,…"</code> to skip databases), then
+                    drop the JSON here. The server parses pages, collections, and records, applies
+                    your exclusions, and writes everything into Postgres.
                 </div>
             </div>
             <div class="upload-action">
                 <input
                     ref="fileInput"
                     type="file"
-                    accept=".zip"
+                    accept=".json,application/json"
                     style="display: none"
                     @change="onFileChosen"
                 />
-                <v-btn color="primary" :loading="uploading" @click="$refs.fileInput.click()">
-                    Choose zip
+                <v-btn color="primary" :loading="uploading" @click="triggerPicker">
+                    Choose bundle
                 </v-btn>
             </div>
         </section>
@@ -103,6 +106,10 @@
         }
     }
 
+    function triggerPicker() {
+        fileInput.value?.click();
+    }
+
     async function onFileChosen(event: Event) {
         const target = event.target as HTMLInputElement;
         const file = target.files?.[0];
@@ -110,16 +117,36 @@
         uploading.value = true;
         uploadStatus.value = '';
         try {
-            const res = await $fetch<{ batch_id: string }>('/api/imports/notion/upload', {
+            const form = new FormData();
+            form.append('bundle', file, file.name);
+            const res = await $fetch<{
+                batch_id: string;
+                status: string;
+                pages_inserted?: number;
+                pages_updated?: number;
+                collections_inserted?: number;
+                records_inserted?: number;
+                duration_ms?: number;
+            }>('/api/imports/notion/upload', {
                 method: 'POST',
-                body: { filename: file.name, size: file.size },
+                body: form,
             });
-            uploadStatusKind.value = 'success';
-            uploadStatus.value = `Batch ${res.batch_id} queued. The actual extractor runs in Phase 2 — for now the batch is recorded so the workflow is visible.`;
+            uploadStatusKind.value = res.status === 'completed' ? 'success' : 'info';
+            if (res.status === 'completed') {
+                const dur = res.duration_ms ? ` in ${(res.duration_ms / 1000).toFixed(1)}s` : '';
+                uploadStatus.value =
+                    `Batch ${res.batch_id} committed${dur}: ` +
+                    `${res.pages_inserted || 0} pages inserted, ` +
+                    `${res.pages_updated || 0} updated, ` +
+                    `${res.collections_inserted || 0} collections, ` +
+                    `${res.records_inserted || 0} records.`;
+            } else {
+                uploadStatus.value = `Batch ${res.batch_id} queued (status: ${res.status}).`;
+            }
             await load();
         } catch (err: any) {
             uploadStatusKind.value = 'error';
-            uploadStatus.value = `Upload failed: ${err?.statusMessage || err?.message || err}`;
+            uploadStatus.value = `Upload failed: ${err?.statusMessage || err?.data?.statusMessage || err?.message || err}`;
         } finally {
             uploading.value = false;
             if (target) target.value = '';

@@ -109,9 +109,15 @@ function basenameWithoutExt(file: string): { stem: string; ext: string } {
     return { stem: base.slice(0, dot), ext: base.slice(dot + 1).toLowerCase() };
 }
 
-function mintId(prefix: string, source_path: string): string {
-    const h = createHash('sha1').update(source_path).digest('hex').slice(0, 12);
-    return `${prefix}_${h}`;
+/**
+ * Mint a stable id from a source path. The `_n_` infix marks an
+ * id as Notion-imported so re-imports update existing rows
+ * (`ON CONFLICT (id) DO UPDATE`) and never collide with the
+ * timestamp-keyed ids that native page creation mints.
+ */
+function mintId(prefix: 'pg' | 'col' | 'rec', source_path: string): string {
+    const h = createHash('sha1').update(source_path).digest('hex').slice(0, 16);
+    return `${prefix}_n_${h}`;
 }
 
 /**

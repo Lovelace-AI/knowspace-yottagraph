@@ -4,6 +4,8 @@ import { getDb } from './neon';
 import { ensureSchema } from './schema';
 import { unsealCookie } from './cookies';
 
+export { newId, slugify } from './ids';
+
 const DEFAULT_WORKSPACE_ID = 'ws_default';
 const DEFAULT_WORKSPACE_SLUG = 'default';
 const DEFAULT_WORKSPACE_NAME = 'Knowspace';
@@ -44,24 +46,4 @@ export async function getOrCreateDefaultWorkspace(event: H3Event): Promise<strin
         ON CONFLICT (id) DO NOTHING`;
 
     return DEFAULT_WORKSPACE_ID;
-}
-
-/**
- * Compact, URL-safe id. Not cryptographic — just unique within a workspace.
- */
-export function newId(prefix: string): string {
-    const rand = Math.random().toString(36).slice(2, 10);
-    const time = Date.now().toString(36);
-    return `${prefix}_${time}${rand}`;
-}
-
-/**
- * Slugify a title for use in URLs / Notion-import path matching.
- */
-export function slugify(input: string): string {
-    return (input || '')
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
-        .slice(0, 80);
 }
