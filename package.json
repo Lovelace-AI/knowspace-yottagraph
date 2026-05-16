@@ -18,6 +18,7 @@
         "notion-prep": "tsx scripts/notion-prep.ts",
         "backfill-extract": "tsx scripts/backfill-extract.ts",
         "migrate-records-to-docs": "tsx scripts/migrate-records-to-docs.ts",
+        "rollback-record-links": "tsx scripts/rollback-record-links.ts",
         "postinstall": "npx nuxi prepare && npm run build-fonts",
         "prepare": "husky"
     },
