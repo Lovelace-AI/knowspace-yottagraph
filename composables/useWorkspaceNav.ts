@@ -73,6 +73,7 @@ export function useWorkspaceNav() {
         title?: string;
         emoji?: string;
         parent_page_id?: string | null;
+        content_markdown?: string;
     }) {
         const created = await $fetch<{ id: string }>('/api/pages', {
             method: 'POST',

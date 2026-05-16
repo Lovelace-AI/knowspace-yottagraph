@@ -7,10 +7,7 @@
                     Welcome back<span v-if="firstName">, {{ firstName }}</span
                     >.
                 </h1>
-                <p class="hero-subtitle">
-                    A calm workspace for migrated Notion content, indexed Google Docs, and
-                    graph-backed knowledge.
-                </p>
+                <p class="hero-subtitle">Markdown docs with tags and links. Keep it calm.</p>
             </header>
 
             <div v-if="!nav.dbConfigured.value" class="db-warning">
@@ -19,27 +16,20 @@
                 on the deployed build (push to <code>main</code>).
             </div>
 
-            <section class="card-row">
-                <v-card class="action-card" @click="createNewPage">
-                    <v-icon size="28" color="primary">mdi-plus-circle-outline</v-icon>
-                    <div class="action-title">New page</div>
-                    <div class="action-sub">Start a fresh document</div>
-                </v-card>
-                <v-card class="action-card" to="/import">
-                    <v-icon size="28" color="primary">mdi-tray-arrow-down</v-icon>
-                    <div class="action-title">Import Notion</div>
-                    <div class="action-sub">Upload an export zip</div>
-                </v-card>
-                <v-card class="action-card" to="/sources">
-                    <v-icon size="28" color="primary">mdi-google-drive</v-icon>
-                    <div class="action-title">Connect Google Drive</div>
-                    <div class="action-sub">Index Docs &amp; folders</div>
-                </v-card>
-                <v-card class="action-card" to="/search">
-                    <v-icon size="28" color="primary">mdi-magnify</v-icon>
-                    <div class="action-title">Ask &amp; search</div>
-                    <div class="action-sub">Grounded answers</div>
-                </v-card>
+            <section class="quick-row">
+                <v-btn color="primary" prepend-icon="mdi-plus" @click="createNewPage"
+                    >New doc</v-btn
+                >
+                <div class="tag-pins" v-if="topTags.length > 0">
+                    <NuxtLink
+                        v-for="tag in topTags"
+                        :key="tag.tag"
+                        :to="`/t/${encodeURIComponent(tag.tag)}`"
+                        class="tag-pin"
+                    >
+                        #{{ tag.tag }}
+                    </NuxtLink>
+                </div>
             </section>
 
             <section class="block">
@@ -70,26 +60,6 @@
                     </NuxtLink>
                 </div>
             </section>
-
-            <section class="block" v-if="favorites.length > 0">
-                <header class="block-header">
-                    <h2 class="block-title">Favorites</h2>
-                </header>
-                <div class="recent-grid">
-                    <NuxtLink
-                        v-for="p in favorites"
-                        :key="p.id"
-                        :to="`/pages/${p.id}`"
-                        class="recent-item"
-                    >
-                        <span class="recent-emoji">{{ p.emoji || '⭐️' }}</span>
-                        <div class="recent-meta">
-                            <div class="recent-title">{{ p.title || 'Untitled' }}</div>
-                            <div class="recent-time">{{ formatRelative(p.updated_at) }}</div>
-                        </div>
-                    </NuxtLink>
-                </div>
-            </section>
         </div>
     </div>
 </template>
@@ -114,7 +84,7 @@
     const firstName = computed(() => (userName.value || '').split(' ')[0] || '');
 
     const recent = ref<RecentPage[]>([]);
-    const favorites = ref<RecentPage[]>([]);
+    const topTags = ref<Array<{ tag: string; usage_count: number }>>([]);
     const loadingRecent = ref(true);
 
     async function loadRecent() {
@@ -122,10 +92,10 @@
         try {
             const [r, f] = await Promise.all([
                 $fetch<{ pages: RecentPage[] }>('/api/pages/recent'),
-                $fetch<{ pages: RecentPage[] }>('/api/pages/favorites'),
+                $fetch<{ tags: Array<{ tag: string; usage_count: number }> }>('/api/tags?limit=8'),
             ]);
             recent.value = r.pages || [];
-            favorites.value = f.pages || [];
+            topTags.value = (f.tags || []).slice(0, 8);
         } catch (err) {
             console.error('Home load failed:', err);
         } finally {
@@ -215,34 +185,28 @@
         font-size: 0.85em;
     }
 
-    .card-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 12px;
-        margin-bottom: 40px;
+    .quick-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 34px;
+        flex-wrap: wrap;
     }
-
-    .action-card {
-        padding: 18px 16px;
-        cursor: pointer;
-        background: var(--lv-surface, #141414) !important;
-        transition:
-            transform 120ms ease,
-            border-color 120ms ease;
+    .tag-pins {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
     }
-    .action-card:hover {
-        transform: translateY(-1px);
-        border-color: rgba(63, 234, 0, 0.4) !important;
-    }
-
-    .action-title {
-        font-weight: 500;
-        margin-top: 10px;
-        font-size: 0.95rem;
-    }
-    .action-sub {
+    .tag-pin {
+        text-decoration: none;
+        color: inherit;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+        padding: 4px 10px;
         font-size: 0.8rem;
-        color: var(--lv-silver, #888);
+    }
+    .tag-pin:hover {
+        border-color: rgba(63, 234, 0, 0.4);
     }
 
     .block {

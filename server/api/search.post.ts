@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     if (!query) return { results: [], dbConfigured: true, query };
 
     const types =
-        body?.types && body.types.length > 0 ? body.types : ['page', 'collection', 'entity'];
+        body?.types && body.types.length > 0 ? body.types : ['page', 'collection', 'entity', 'tag'];
     const limit = Math.min(Math.max(body?.limit ?? 30, 1), 100);
 
     const results: any[] = [];
@@ -49,7 +49,9 @@ export default defineEventHandler(async (event) => {
                     emoji: r.emoji,
                     snippet,
                     updated_at: r.updated_at,
-                    rank: r.rank,
+                    score:
+                        Number(r.rank || 0) +
+                        1 / (1 + (Date.now() - new Date(r.updated_at).getTime()) / 86400000),
                 });
             }
         }
@@ -67,6 +69,7 @@ export default defineEventHandler(async (event) => {
                     title: r.name,
                     snippet: r.description || '',
                     updated_at: r.updated_at,
+                    score: 0.4,
                 });
             }
         }
@@ -84,6 +87,31 @@ export default defineEventHandler(async (event) => {
                     title: r.canonical_name,
                     snippet: r.summary || r.entity_type || '',
                     updated_at: r.updated_at,
+                    score: 0.5,
+                });
+            }
+        }
+
+        if (types.includes('tag')) {
+            const tagRows: any = await sql`SELECT tag, COUNT(*)::int AS usage_count
+                FROM (
+                    SELECT jsonb_array_elements_text(coalesce(tags, '[]'::jsonb)) AS tag
+                    FROM pages
+                    WHERE workspace_id = ${workspaceId}
+                      AND deleted_at IS NULL
+                ) t
+                WHERE tag ILIKE ${'%' + query + '%'}
+                GROUP BY tag
+                ORDER BY usage_count DESC, tag ASC
+                LIMIT ${limit}`;
+            for (const r of tagRows) {
+                results.push({
+                    type: 'tag',
+                    id: r.tag,
+                    title: `#${r.tag}`,
+                    snippet: `${r.usage_count} docs`,
+                    updated_at: null,
+                    score: 0.6 + Math.min(0.4, Number(r.usage_count || 0) / 100),
                 });
             }
         }
@@ -91,5 +119,6 @@ export default defineEventHandler(async (event) => {
         if (!err.message?.includes('does not exist')) throw err;
     }
 
-    return { results, dbConfigured: true, query };
+    results.sort((a, b) => Number(b.score || 0) - Number(a.score || 0));
+    return { results: results.slice(0, limit), dbConfigured: true, query };
 });

@@ -40,6 +40,7 @@
                 <v-chip filter value="page" variant="outlined">Pages</v-chip>
                 <v-chip filter value="collection" variant="outlined">Collections</v-chip>
                 <v-chip filter value="entity" variant="outlined">Entities</v-chip>
+                <v-chip filter value="tag" variant="outlined">Tags</v-chip>
             </v-chip-group>
         </div>
 
@@ -107,7 +108,7 @@
     import { onMounted, ref } from 'vue';
 
     interface ResultRow {
-        type: 'page' | 'collection' | 'entity';
+        type: 'page' | 'collection' | 'entity' | 'tag';
         id: string;
         title: string;
         emoji?: string | null;
@@ -122,7 +123,7 @@
     const searching = ref(false);
     const searched = ref(false);
     const lastQuery = ref('');
-    const typeFilters = ref<string[]>(['page', 'collection', 'entity']);
+    const typeFilters = ref<string[]>(['page', 'collection', 'entity', 'tag']);
 
     const asking = ref(false);
     const askAnswer = ref<null | {
@@ -179,12 +180,14 @@
     function resultLink(r: ResultRow) {
         if (r.type === 'page') return `/pages/${r.id}`;
         if (r.type === 'collection') return `/collections/${r.id}`;
+        if (r.type === 'tag') return `/t/${encodeURIComponent(r.id)}`;
         return `/entities/${r.id}`;
     }
     function resultEmoji(r: ResultRow) {
         if (r.emoji) return r.emoji;
         if (r.type === 'collection') return '🗂️';
         if (r.type === 'entity') return '🧩';
+        if (r.type === 'tag') return '#';
         return '📄';
     }
 

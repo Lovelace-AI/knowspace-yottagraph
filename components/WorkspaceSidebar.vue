@@ -16,7 +16,6 @@
 
         <v-list density="compact" nav class="py-0">
             <v-list-item title="Home" prepend-icon="mdi-home-outline" to="/" exact rounded="lg" />
-            <v-list-item title="Search" prepend-icon="mdi-magnify" to="/search" rounded="lg" />
         </v-list>
 
         <v-list density="compact" nav class="pt-0">
@@ -43,6 +42,26 @@
                         <span class="page-emoji">{{ fav.emoji || 'star' }}</span>
                     </template>
                 </v-list-item>
+            </template>
+        </v-list>
+
+        <v-list density="compact" nav class="pt-0">
+            <div class="section-header">
+                <span>Tags</span>
+            </div>
+            <template v-if="tags.length === 0">
+                <v-list-item density="compact" class="empty-hint" title="No tags yet" />
+            </template>
+            <template v-else>
+                <v-list-item
+                    v-for="tag in tags"
+                    :key="tag.tag"
+                    :title="`#${tag.tag}`"
+                    :subtitle="`${tag.usage_count} docs`"
+                    :to="`/t/${encodeURIComponent(tag.tag)}`"
+                    rounded="lg"
+                    density="compact"
+                />
             </template>
         </v-list>
 
@@ -85,34 +104,6 @@
                 />
             </template>
         </v-list>
-
-        <v-list density="compact" nav class="pt-0">
-            <div class="section-header"><span>Workspace</span></div>
-            <v-list-item
-                title="Collections"
-                prepend-icon="mdi-table-large"
-                to="/collections"
-                rounded="lg"
-            />
-            <v-list-item
-                title="Sources"
-                prepend-icon="mdi-database-import-outline"
-                to="/sources"
-                rounded="lg"
-            />
-            <v-list-item
-                title="Entities"
-                prepend-icon="mdi-graph-outline"
-                to="/entities"
-                rounded="lg"
-            />
-            <v-list-item
-                title="Import Center"
-                prepend-icon="mdi-tray-arrow-down"
-                to="/import"
-                rounded="lg"
-            />
-        </v-list>
     </v-navigation-drawer>
 </template>
 
@@ -125,10 +116,23 @@
     const nav = useWorkspaceNav();
     const router = useRouter();
     const searchInput = ref('');
+    const tags = ref<Array<{ tag: string; usage_count: number }>>([]);
 
     onMounted(() => {
         void nav.ensureLoaded();
+        void loadTags();
     });
+
+    async function loadTags() {
+        try {
+            const res = await $fetch<{ tags: Array<{ tag: string; usage_count: number }> }>(
+                '/api/tags?limit=12'
+            );
+            tags.value = res.tags || [];
+        } catch {
+            tags.value = [];
+        }
+    }
 
     async function createTopLevelPage() {
         const created = await nav.createPage({ title: 'Untitled' });

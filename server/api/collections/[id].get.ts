@@ -1,5 +1,6 @@
 import { getDb } from '~/server/utils/neon';
 import { getOrCreateDefaultWorkspace } from '~/server/utils/workspace';
+import { slugify } from '~/server/utils/ids';
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id');
@@ -29,5 +30,14 @@ export default defineEventHandler(async (event) => {
         WHERE r.collection_id = ${id}
         ORDER BY r.updated_at DESC`;
 
-    return { collection, fields, records };
+    const tag = slugify(collection.name || '');
+    return {
+        deprecated: true,
+        message: 'Collections are being migrated to tag pages.',
+        tag,
+        tag_url: `/t/${encodeURIComponent(tag)}`,
+        collection,
+        fields,
+        records,
+    };
 });

@@ -1,5 +1,6 @@
 import { getDb } from '~/server/utils/neon';
 import { getOrCreateDefaultWorkspace } from '~/server/utils/workspace';
+import { slugify } from '~/server/utils/ids';
 
 export default defineEventHandler(async (event) => {
     const sql = getDb();
@@ -12,9 +13,17 @@ export default defineEventHandler(async (event) => {
             FROM collections c
             WHERE c.workspace_id = ${workspaceId}
             ORDER BY c.updated_at DESC`;
-        return { collections: rows };
+        return {
+            deprecated: true,
+            message: 'Collections are being migrated to tag pages.',
+            collections: (rows || []).map((r: any) => ({
+                ...r,
+                tag: slugify(r.name || ''),
+                tag_url: `/t/${encodeURIComponent(slugify(r.name || ''))}`,
+            })),
+        };
     } catch (err: any) {
-        if (err.message?.includes('does not exist')) return { collections: [] };
+        if (err.message?.includes('does not exist')) return { collections: [], deprecated: true };
         throw err;
     }
 });

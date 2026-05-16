@@ -12,6 +12,7 @@
                 <SettingsDialog />
             </v-dialog>
 
+            <CommandPalette />
             <NotificationContainer />
         </template>
         <template v-else>

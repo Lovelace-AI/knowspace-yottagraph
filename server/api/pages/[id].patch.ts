@@ -1,5 +1,6 @@
 import { getDb } from '~/server/utils/neon';
 import { getOrCreateDefaultWorkspace, getUserSub } from '~/server/utils/workspace';
+import { persistDocExtraction } from '~/server/utils/docExtract';
 
 interface PatchPageBody {
     title?: string;
@@ -47,6 +48,14 @@ export default defineEventHandler(async (event) => {
     if (body.tags !== undefined) {
         await sql`UPDATE pages SET tags = ${JSON.stringify(body.tags)}::jsonb, updated_at = NOW()
             WHERE id = ${id} AND workspace_id = ${workspaceId}`;
+    }
+    if (body.content_markdown !== undefined) {
+        await persistDocExtraction(sql, {
+            workspaceId,
+            pageId: id,
+            markdown: body.content_markdown,
+            userSub,
+        });
     }
 
     const rows = await sql`SELECT id, title, emoji, parent_page_id, is_favorite, tags, updated_at

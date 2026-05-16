@@ -121,16 +121,42 @@
             <div class="editor-area" :class="`mode-${viewMode}`">
                 <textarea
                     v-show="viewMode === 'edit' || viewMode === 'split'"
+                    ref="editorRef"
                     v-model="contentDraft"
                     class="md-editor"
                     placeholder="Write in Markdown. Headings, lists, **bold**, *italic*, `code`, and [links](#) all work."
                     @input="onContentInput"
+                    @paste="onEditorPaste"
+                    @keyup="onEditorCursorUpdate"
+                    @click="onEditorCursorUpdate"
+                    @keydown="onEditorKeydown"
                 ></textarea>
+                <div v-if="showCompletionBox" class="completion-box">
+                    <button
+                        v-for="option in completionOptions"
+                        :key="option.value"
+                        class="completion-option"
+                        @mousedown.prevent="applyCompletion(option.value)"
+                    >
+                        <span class="completion-main">{{ option.label }}</span>
+                        <span class="completion-meta" v-if="option.meta">{{ option.meta }}</span>
+                    </button>
+                </div>
                 <div
                     v-show="viewMode === 'render' || viewMode === 'split'"
                     class="md-render"
                     v-html="renderedHtml"
+                    @mouseover="onRenderHover"
+                    @mouseleave="hideWikiPreview"
                 ></div>
+                <div
+                    v-if="wikiPreview.visible"
+                    class="wiki-preview"
+                    :style="{ left: wikiPreview.x + 'px', top: wikiPreview.y + 'px' }"
+                >
+                    <div class="wiki-preview-title">{{ wikiPreview.title }}</div>
+                    <div class="wiki-preview-snippet">{{ wikiPreview.snippet }}</div>
+                </div>
             </div>
 
             <div v-if="children.length > 0" class="child-section">
@@ -152,9 +178,7 @@
         <aside v-if="showPanel" class="context-panel">
             <v-tabs v-model="panelTab" density="compact" color="primary" grow>
                 <v-tab value="outline">Outline</v-tab>
-                <v-tab value="source">Source</v-tab>
-                <v-tab value="entities">Entities</v-tab>
-                <v-tab value="ai">AI</v-tab>
+                <v-tab value="links">Links</v-tab>
             </v-tabs>
 
             <div class="panel-body">
@@ -173,86 +197,7 @@
                     </a>
                 </div>
 
-                <div v-else-if="panelTab === 'source'">
-                    <div class="src-block">
-                        <div class="src-label">Origin</div>
-                        <div class="src-value">
-                            {{
-                                page.import_status === 'native'
-                                    ? 'Created in Knowspace'
-                                    : page.import_status
-                            }}
-                        </div>
-                    </div>
-                    <div class="src-block">
-                        <div class="src-label">Created</div>
-                        <div class="src-value">{{ formatFull(page.created_at) }}</div>
-                    </div>
-                    <div class="src-block">
-                        <div class="src-label">Updated</div>
-                        <div class="src-value">{{ formatFull(page.updated_at) }}</div>
-                    </div>
-                    <div class="src-block" v-if="page.source_id">
-                        <div class="src-label">Source ID</div>
-                        <div class="src-value mono">{{ page.source_id }}</div>
-                    </div>
-                    <div class="src-block">
-                        <div class="src-label">Page ID</div>
-                        <div class="src-value mono">{{ page.id }}</div>
-                    </div>
-                </div>
-
-                <div v-else-if="panelTab === 'entities'">
-                    <div class="muted">
-                        Entity extraction runs in Phase 5 — once enabled, mentions of people,
-                        organizations, products and concepts will appear here linked to canonical
-                        entity pages.
-                    </div>
-                </div>
-
-                <div v-else-if="panelTab === 'ai'">
-                    <p class="muted">
-                        Ask a question grounded in this workspace. Results are based on Postgres
-                        full-text matches across your pages.
-                    </p>
-                    <v-textarea
-                        v-model="askInput"
-                        rows="3"
-                        auto-grow
-                        placeholder="e.g. What did we decide about pricing?"
-                        density="compact"
-                        variant="outlined"
-                        hide-details
-                    />
-                    <v-btn
-                        size="small"
-                        color="primary"
-                        :loading="asking"
-                        :disabled="!askInput.trim()"
-                        class="mt-2"
-                        @click="submitAsk"
-                    >
-                        Ask workspace
-                    </v-btn>
-                    <div v-if="askAnswer" class="ask-answer">
-                        <div class="answer-text">{{ askAnswer.answer }}</div>
-                        <div v-if="askAnswer.citations.length > 0" class="citations">
-                            <div class="src-label" style="margin-top: 12px">Sources</div>
-                            <NuxtLink
-                                v-for="c in askAnswer.citations"
-                                :key="c.page_id"
-                                :to="`/pages/${c.page_id}`"
-                                class="citation-item"
-                            >
-                                <span class="emoji-slot">{{ c.emoji || '📄' }}</span>
-                                <div>
-                                    <div class="citation-title">{{ c.title }}</div>
-                                    <div class="citation-snippet">{{ c.snippet }}</div>
-                                </div>
-                            </NuxtLink>
-                        </div>
-                    </div>
-                </div>
+                <BacklinksPanel v-else-if="panelTab === 'links'" :page-id="page.id" />
             </div>
         </aside>
 
@@ -280,6 +225,7 @@
 
     import { renderMarkdown } from '~/utils/markdown';
     import { useWorkspaceNav } from '~/composables/useWorkspaceNav';
+    import BacklinksPanel from '~/components/BacklinksPanel.vue';
 
     interface PageRecord {
         id: string;
@@ -315,21 +261,27 @@
     const titleDraft = ref('');
     const contentDraft = ref('');
     const titleInput = ref<HTMLInputElement | null>(null);
+    const editorRef = ref<HTMLTextAreaElement | null>(null);
     const showPanel = ref(true);
-    const panelTab = ref<'outline' | 'source' | 'entities' | 'ai'>('outline');
+    const panelTab = ref<'outline' | 'links'>('outline');
     const viewMode = ref<'render' | 'edit' | 'split'>('edit');
     const saving = ref(false);
     const lastSavedAt = ref<number | null>(null);
     const deleteDialog = ref(false);
 
-    const askInput = ref('');
-    const asking = ref(false);
-    const askAnswer = ref<null | {
-        answer: string;
-        citations: { page_id: string; title: string; emoji: string | null; snippet: string }[];
-    }>(null);
-
     const EMOJI_CYCLE = ['📄', '📝', '📓', '📚', '🗂️', '💡', '🧠', '🔬', '🎯', '🚀', '🌱'];
+    const tagCatalog = ref<Array<{ tag: string; usage_count: number }>>([]);
+    const completionMode = ref<'tag' | 'wiki' | null>(null);
+    const completionQuery = ref('');
+    const completionStart = ref(0);
+    const completionEnd = ref(0);
+    const wikiPreview = ref({
+        visible: false,
+        x: 0,
+        y: 0,
+        title: '',
+        snippet: '',
+    });
 
     async function loadPage(id: string) {
         loading.value = true;
@@ -344,7 +296,6 @@
             children.value = res.children || [];
             titleDraft.value = res.page.title || '';
             contentDraft.value = res.page.content_markdown || '';
-            askAnswer.value = null;
         } catch (err) {
             console.error('Load page failed:', err);
             page.value = null;
@@ -368,6 +319,7 @@
                 titleInput.value.select();
             }
         });
+        void loadTagCatalog();
     });
 
     const renderedHtml = computed(() => renderMarkdown(contentDraft.value));
@@ -391,6 +343,49 @@
         }
         return out;
     });
+
+    const completionOptions = computed(() => {
+        if (completionMode.value === 'tag') {
+            const q = completionQuery.value.toLowerCase();
+            return tagCatalog.value
+                .filter((t) => !q || t.tag.includes(q))
+                .slice(0, 8)
+                .map((t) => ({
+                    value: t.tag,
+                    label: `#${t.tag}`,
+                    meta: `${t.usage_count} docs`,
+                }));
+        }
+        if (completionMode.value === 'wiki') {
+            const q = completionQuery.value.toLowerCase();
+            return (nav.pages.value || [])
+                .filter((p) => !q || (p.title || '').toLowerCase().includes(q))
+                .slice(0, 8)
+                .map((p) => ({
+                    value: p.title || 'Untitled',
+                    label: p.title || 'Untitled',
+                    meta: p.emoji || '📄',
+                }));
+        }
+        return [];
+    });
+
+    const showCompletionBox = computed(
+        () =>
+            (completionMode.value === 'tag' || completionMode.value === 'wiki') &&
+            completionOptions.value.length > 0
+    );
+
+    async function loadTagCatalog() {
+        try {
+            const res = await $fetch<{ tags: Array<{ tag: string; usage_count: number }> }>(
+                '/api/tags?limit=200'
+            );
+            tagCatalog.value = res.tags || [];
+        } catch {
+            tagCatalog.value = [];
+        }
+    }
 
     let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -431,6 +426,7 @@
     }
 
     function onContentInput() {
+        onEditorCursorUpdate();
         scheduleSave();
     }
     function onTitleBlur() {
@@ -438,6 +434,133 @@
     }
     function onTitleEnter() {
         (titleInput.value as HTMLInputElement | null)?.blur();
+    }
+
+    function onEditorCursorUpdate() {
+        const el = editorRef.value;
+        if (!el) {
+            completionMode.value = null;
+            return;
+        }
+        const cursor = el.selectionStart || 0;
+        const before = contentDraft.value.slice(0, cursor);
+
+        const wikiMatch = before.match(/\[\[([^\]\n]*)$/);
+        if (wikiMatch) {
+            completionMode.value = 'wiki';
+            completionQuery.value = wikiMatch[1] || '';
+            completionStart.value = cursor - wikiMatch[0].length;
+            completionEnd.value = cursor;
+            return;
+        }
+
+        const tagMatch = before.match(/(^|[\s([{-])#([a-zA-Z0-9/_-]*)$/);
+        if (tagMatch) {
+            completionMode.value = 'tag';
+            completionQuery.value = tagMatch[2] || '';
+            completionStart.value = cursor - (tagMatch[2] || '').length - 1;
+            completionEnd.value = cursor;
+            return;
+        }
+
+        completionMode.value = null;
+    }
+
+    function onEditorKeydown(evt: KeyboardEvent) {
+        if (!showCompletionBox.value) return;
+        if (evt.key === 'Enter' || evt.key === 'Tab') {
+            evt.preventDefault();
+            const first = completionOptions.value[0];
+            if (first) applyCompletion(first.value);
+        }
+        if (evt.key === 'Escape') {
+            completionMode.value = null;
+        }
+    }
+
+    function applyCompletion(value: string) {
+        const el = editorRef.value;
+        if (!el || !completionMode.value) return;
+
+        const before = contentDraft.value.slice(0, completionStart.value);
+        const after = contentDraft.value.slice(completionEnd.value);
+        let insertion = '';
+        let cursorOffset = 0;
+        if (completionMode.value === 'tag') {
+            insertion = `#${value}`;
+            cursorOffset = insertion.length;
+        } else {
+            insertion = `[[${value}]]`;
+            cursorOffset = insertion.length;
+        }
+        contentDraft.value = before + insertion + after;
+        completionMode.value = null;
+        nextTick(() => {
+            const newPos = before.length + cursorOffset;
+            el.focus();
+            el.setSelectionRange(newPos, newPos);
+            onEditorCursorUpdate();
+            scheduleSave();
+        });
+    }
+
+    async function onEditorPaste(evt: ClipboardEvent) {
+        const el = editorRef.value;
+        if (!el) return;
+        const text = evt.clipboardData?.getData('text/plain')?.trim() || '';
+        if (!/^https?:\/\/\S+$/i.test(text)) return;
+
+        evt.preventDefault();
+        let title = '';
+        try {
+            const res = await $fetch<{ title: string }>('/api/url-title', {
+                query: { url: text },
+            });
+            title = (res.title || '').trim();
+        } catch {
+            title = '';
+        }
+        const replacement = `[${title || text}](${text})`;
+        const start = el.selectionStart || 0;
+        const end = el.selectionEnd || start;
+        contentDraft.value =
+            contentDraft.value.slice(0, start) + replacement + contentDraft.value.slice(end);
+        const nextPos = start + replacement.length;
+        nextTick(() => {
+            el.setSelectionRange(nextPos, nextPos);
+            scheduleSave();
+        });
+    }
+
+    async function onRenderHover(evt: MouseEvent) {
+        const target = evt.target as HTMLElement | null;
+        const anchor = target?.closest('a') as HTMLAnchorElement | null;
+        if (!anchor) return;
+        const href = anchor.getAttribute('href') || '';
+        const match = href.match(/\/search\?q=([^&]+)/);
+        if (!match) return;
+        const title = decodeURIComponent(match[1] || '').trim();
+        if (!title) return;
+        try {
+            const res = await $fetch<{ found: boolean; snippet: string; title?: string }>(
+                '/api/pages/preview',
+                { query: { title } }
+            );
+            if (!res.found) return;
+            wikiPreview.value = {
+                visible: true,
+                x: evt.clientX + 16,
+                y: evt.clientY + 16,
+                title: res.title || title,
+                snippet: res.snippet || '',
+            };
+        } catch {
+            // ignore
+        }
+    }
+
+    function hideWikiPreview() {
+        wikiPreview.value.visible = false;
     }
 
     async function cycleEmoji() {
@@ -486,22 +609,6 @@
         else await router.push('/');
     }
 
-    async function submitAsk() {
-        if (!askInput.value.trim()) return;
-        asking.value = true;
-        try {
-            const res = await $fetch<{ answer: string; citations: any[] }>('/api/ask', {
-                method: 'POST',
-                body: { question: askInput.value.trim(), page_id: page.value?.id },
-            });
-            askAnswer.value = { answer: res.answer, citations: res.citations || [] };
-        } catch (err) {
-            console.error('Ask failed:', err);
-        } finally {
-            asking.value = false;
-        }
-    }
-
     function formatRelative(iso: string): string {
         if (!iso) return '';
         const d = new Date(iso);
@@ -514,11 +621,6 @@
         const day = Math.floor(hr / 24);
         if (day < 7) return `${day}d ago`;
         return d.toLocaleDateString();
-    }
-
-    function formatFull(iso: string): string {
-        if (!iso) return '';
-        return new Date(iso).toLocaleString();
     }
 
     const lastSavedLabel = computed(() => {
@@ -638,6 +740,7 @@
         display: grid;
         gap: 24px;
         align-items: start;
+        position: relative;
     }
     .editor-area.mode-edit {
         grid-template-columns: 1fr;
@@ -665,6 +768,63 @@
     }
     .md-editor:focus {
         border-color: rgba(63, 234, 0, 0.4);
+    }
+    .completion-box {
+        position: absolute;
+        left: 12px;
+        top: 52px;
+        z-index: 5;
+        min-width: 260px;
+        max-width: 380px;
+        max-height: 240px;
+        overflow: auto;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        background: #171717;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+    }
+    .completion-option {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        border: none;
+        background: transparent;
+        color: #e5e5e5;
+        text-align: left;
+        padding: 8px 10px;
+        cursor: pointer;
+    }
+    .completion-option:hover {
+        background: rgba(63, 234, 0, 0.09);
+    }
+    .completion-main {
+        font-size: 0.82rem;
+    }
+    .completion-meta {
+        font-size: 0.74rem;
+        color: var(--lv-silver, #999);
+    }
+    .wiki-preview {
+        position: fixed;
+        z-index: 20;
+        max-width: 320px;
+        background: #141414;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 8px;
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
+        padding: 8px 10px;
+    }
+    .wiki-preview-title {
+        font-size: 0.82rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+    .wiki-preview-snippet {
+        font-size: 0.76rem;
+        color: var(--lv-silver, #aaa);
+        line-height: 1.4;
     }
 
     .md-render {

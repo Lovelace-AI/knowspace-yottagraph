@@ -1,6 +1,7 @@
 import { getDb } from './neon';
 import { ensureSchema } from './schema';
 import { newId } from './ids';
+import { persistDocExtraction } from './docExtract';
 
 /**
  * Shape of a Notion-prep bundle (`scripts/notion-prep.ts --out`).
@@ -133,6 +134,12 @@ export async function commitBundle(raw: unknown, opts: CommitOptions): Promise<C
         const wasInsert = Array.isArray(result) ? result[0]?.inserted : result?.[0]?.inserted;
         if (wasInsert) pages_inserted++;
         else pages_updated++;
+        await persistDocExtraction(sql, {
+            workspaceId,
+            pageId: p.id,
+            markdown: p.content_markdown || '',
+            userSub,
+        });
     }
 
     for (const p of bundle.pages) {
