@@ -19,7 +19,17 @@ const DEFAULT_WORKSPACE_NAME = 'Knowspace';
 export async function getUserSub(event: H3Event): Promise<string | null> {
     try {
         const cookie = await unsealCookie(event);
-        return cookie?.user?.sub || null;
+        const sub = String(cookie?.user?.sub || '').trim();
+        const name = String(cookie?.user?.name || cookie?.user?.nickname || '').trim();
+        if (name && sub) return `${name}|${sub}`;
+        if (sub) return sub;
+    } catch {
+        // fall through to dev-user fallback
+    }
+    try {
+        const cfg = useRuntimeConfig(event);
+        const devUser = String(cfg.public?.userName || '').trim();
+        return devUser || null;
     } catch {
         return null;
     }

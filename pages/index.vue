@@ -56,6 +56,9 @@
                             <div class="recent-time">
                                 {{ formatRelative(p.updated_at) }}
                             </div>
+                            <div class="recent-author">
+                                by {{ formatAuthor(p.updated_by || p.created_by) }}
+                            </div>
                         </div>
                     </NuxtLink>
                 </div>
@@ -74,6 +77,8 @@
         title: string;
         emoji: string | null;
         updated_at: string;
+        created_by?: string | null;
+        updated_by?: string | null;
         is_favorite?: boolean;
     }
 
@@ -120,6 +125,13 @@
         const day = Math.floor(hr / 24);
         if (day < 7) return `${day}d ago`;
         return d.toLocaleDateString();
+    }
+
+    function formatAuthor(v: string | null | undefined): string {
+        const raw = String(v || '').trim();
+        if (!raw) return 'unknown';
+        if (raw.includes('|')) return raw.split('|')[0] || raw;
+        return raw;
     }
 
     onMounted(loadRecent);
@@ -273,6 +285,11 @@
         font-size: 0.74rem;
         color: var(--lv-silver, #888);
         font-family: var(--font-mono, monospace);
+    }
+    .recent-author {
+        margin-top: 2px;
+        font-size: 0.72rem;
+        color: var(--lv-silver, #888);
     }
 
     .muted {

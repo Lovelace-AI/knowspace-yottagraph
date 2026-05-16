@@ -84,6 +84,14 @@
                     <v-icon size="14">mdi-clock-outline</v-icon>
                     Updated {{ formatRelative(page.updated_at) }}
                 </span>
+                <span class="meta-chip">
+                    <v-icon size="14">mdi-account-outline</v-icon>
+                    Author {{ formatAuthor(page.created_by) }}
+                </span>
+                <span class="meta-chip">
+                    <v-icon size="14">mdi-account-edit-outline</v-icon>
+                    Last edited by {{ formatAuthor(page.updated_by || page.created_by) }}
+                </span>
                 <span
                     class="meta-chip"
                     v-if="page.import_status && page.import_status !== 'native'"
@@ -236,6 +244,8 @@
         source_id: string | null;
         is_favorite: boolean;
         import_status: string;
+        created_by: string | null;
+        updated_by: string | null;
         created_at: string;
         updated_at: string;
     }
@@ -621,6 +631,13 @@
         const day = Math.floor(hr / 24);
         if (day < 7) return `${day}d ago`;
         return d.toLocaleDateString();
+    }
+
+    function formatAuthor(v: string | null | undefined): string {
+        const raw = String(v || '').trim();
+        if (!raw) return 'unknown';
+        if (raw.includes('|')) return raw.split('|')[0] || raw;
+        return raw;
     }
 
     const lastSavedLabel = computed(() => {

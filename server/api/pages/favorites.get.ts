@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     if (!sql || !workspaceId) return { pages: [] };
 
     try {
-        const rows = await sql`SELECT id, title, emoji, updated_at
+        const rows = await sql`SELECT id, title, emoji, updated_at, created_by, updated_by
             FROM pages
             WHERE workspace_id = ${workspaceId}
               AND is_favorite = TRUE

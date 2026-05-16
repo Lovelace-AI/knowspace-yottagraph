@@ -17,6 +17,7 @@
         "format:check": "prettier --check \"**/*.{js,ts,vue,json,md}\" --ignore-path .gitignore --ignore-path .prettierignore",
         "notion-prep": "tsx scripts/notion-prep.ts",
         "backfill-extract": "tsx scripts/backfill-extract.ts",
+        "backfill-authors": "tsx scripts/backfill-authors.ts",
         "migrate-records-to-docs": "tsx scripts/migrate-records-to-docs.ts",
         "rollback-record-links": "tsx scripts/rollback-record-links.ts",
         "postinstall": "npx nuxi prepare && npm run build-fonts",
